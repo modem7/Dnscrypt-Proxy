@@ -25,7 +25,7 @@ LABEL maintainer="Alex Lane <modem7@gmail.com>" \
                   such as DNSCrypt v2 and DNS-over-HTTP/2." \
       url="https://github.com/jedisct1/dnscrypt-proxy"
 
-Uncomment these if you want to enable the healthcheck
+# Uncomment these if you want to enable the healthcheck
 RUN apk add --no-cache bash \
     && apk add --no-cache curl \
     && apk add --update --no-cache bind-tools \
@@ -55,4 +55,5 @@ RUN addgroup -g 1000 proxy && \
 # command
 ENTRYPOINT [ "dnscrypt-proxy", "-config", "/etc/dnscrypt-proxy/dnscrypt-proxy.toml", "-pidfile", "/etc/dnscrypt-proxy/dnscryptProxy.pid"]
 
+# Healthcheck
 HEALTHCHECK --interval=15s --timeout=3s --retries=3 CMD dig one.one.one.one || exit 1
