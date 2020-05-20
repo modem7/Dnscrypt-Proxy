@@ -14,6 +14,7 @@ If you need it to listen on an alternate port:
 docker run -dt --dns 127.0.0.1 -p 5353:53/udp -p 5353:53/tcp --name dnscrypt-proxy --restart unless-stopped modem7/dnscrypt-proxy
 ```
 
+## Docker-compose
 ```bash
 version: "2.4"
 
@@ -45,6 +46,8 @@ volumes:
   DNSCrypt:
 ```
 ---------------
+
+## Modifications
 If you want to modify the server list being used or other parameters you can clone the repo, modify the configuration files, build your own image, and run from that build.
 
 Clone Repo:
@@ -66,3 +69,6 @@ Run a container from the build:
 ```bash
 docker run -dt --dns 127.0.0.1 -p 53:53/udp -p 53:53/tcp --name dnscrypt-proxy --restart unless-stopped dnscrypt-proxy-build
 ```
+
+## Troubleshooting
+If you run into issues after updating, remove the container and volume and recreate to get the latest config
