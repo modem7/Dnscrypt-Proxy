@@ -36,7 +36,8 @@ LABEL maintainer="Alex Lane <modem7@gmail.com>" \
 ENV TZ Europe/London
 
 # publish port DNS over UDP & TCP
-EXPOSE 53/TCP 53/UDP 5353/TCP 5353/UDP
+EXPOSE 53/TCP 53/UDP 
+#EXPOSE 5353/TCP 5353/UDP
 
 # service running
 STOPSIGNAL SIGTERM
