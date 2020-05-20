@@ -52,6 +52,8 @@ RUN addgroup -g 1000 proxy && \
     adduser -u 1000 -G proxy -H proxy -S && \
     chown -R proxy:proxy /etc/dnscrypt-proxy
 
+USER proxy
+
 # command
 ENTRYPOINT [ "dnscrypt-proxy", "-config", "/etc/dnscrypt-proxy/dnscrypt-proxy.toml", "-pidfile", "/etc/dnscrypt-proxy/dnscryptProxy.pid"]
 
