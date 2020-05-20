@@ -29,7 +29,7 @@
 ##
 ## Remove the leading # first to enable this; lines starting with # are ignored.
 
-server_names = ['cloudflare', 'quad9-dnscrypt-ip4-nofilter-pri', 'quad9-dnscrypt-ip4-nofilter-alt', 'quad9-doh-ip4-filter-alt', 'quad9-doh-ip4-filter-pri', ' doh-crypto-sx', 'dnscrypt.uk-ipv4', 'cs-uk', 'v.dnscrypt.uk-ipv4']
+server_names = ['cloudflare', 'quad9-dnscrypt-ip4-nofilter-pri', 'quad9-dnscrypt-ip4-nofilter-alt', 'quad9-doh-ip4-filter-alt', 'quad9-doh-ip4-filter-pri', 'doh-crypto-sx', 'dnscrypt.uk-ipv4', 'cs-uk', 'v.dnscrypt.uk-ipv4']
 
 
 ## List of local addresses and ports to listen to. Can be IPv4 and/or IPv6.
