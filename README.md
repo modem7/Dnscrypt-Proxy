@@ -27,12 +27,12 @@ services:
     container_name: Dnscrypt-proxy
     volumes:
       - DNSCrypt:/etc/dnscrypt-proxy/
+      #- /opt/dnscrypt-proxy.toml:/etc/dnscrypt-proxy/dnscrypt-proxy.toml
       - /etc/localtime:/etc/localtime
     dns:
       - 127.0.0.1
     ports:
       - "53:53"
-      - "5353:5353"
     environment:
       TZ: 'Europe/London'
     networks:
@@ -49,6 +49,8 @@ volumes:
 
 ## Modifications
 If you want to modify the server list being used or other parameters you can clone the repo, modify the configuration files, build your own image, and run from that build.
+
+Alternatively: Uncomment the value in volumes to substitute your own local configuration.
 
 Clone Repo:
 git clone https://github.com/modem7/Docker.git
