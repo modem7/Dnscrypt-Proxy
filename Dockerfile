@@ -4,6 +4,7 @@ LABEL maintainer="Alex Lane <modem7@gmail.com>"
 LABEL description="A flexible DNS proxy, with support for modern encrypted DNS protocols \
                    such as DNSCrypt v2 and DNS-over-HTTP/2." \
                    url="https://github.com/jedisct1/dnscrypt-proxy"
+                   version="2.0.42"
 ENV LOCAL_PORT 53
 RUN apk update && \
     apk add --no-cache \ 
