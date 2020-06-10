@@ -18,6 +18,7 @@ EXPOSE $LOCAL_PORT/udp
 ENV TZ Europe/London
 
 ADD dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+ADD example-dnscrypt-proxy.toml /etc/dnscrypt-proxy/example-dnscrypt-proxy.toml
 
 USER dnscrypt
 
