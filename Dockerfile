@@ -20,8 +20,6 @@ ENV TZ Europe/London
 COPY dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml
 COPY example-dnscrypt-proxy.toml /etc/dnscrypt-proxy/example-dnscrypt-proxy.toml
 
-VOLUME /etc/dnscrypt-proxy
-
 USER dnscrypt
 
 HEALTHCHECK --interval=5s --timeout=3s --start-period=10s \
