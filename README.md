@@ -20,30 +20,24 @@ version: "2.4"
 
 services:
 
- #DNSCrypt-Proxy - Non-caching, Non-logging, DNSSEC DNS Resolver
+  #DNSCrypt-Proxy - Non-caching, Non-logging, DNSSEC DNS Resolver
   dnscrypt-proxy:
-    image: modem7/dnscrypt-proxy
-    hostname: DNSCrypt
+    image: modem7/dnscrypttest:latest 
+    # image: modem7/dnscrypt-proxy:latest
     container_name: Dnscrypt-proxy
-    volumes:
-      - DNSCrypt:/etc/dnscrypt-proxy/
-      #- /opt/dnscrypt-proxy.toml:/etc/dnscrypt-proxy/dnscrypt-proxy.toml
-      - /etc/localtime:/etc/localtime
+    hostname: DNSCrypt
+    environment:
+      TZ: '$TZ'
     dns:
       - 127.0.0.1
     ports:
       - "53:53"
-    environment:
-      TZ: 'Europe/London'
-    networks:
-      docker-macvlan:
-        ipv4_address: '192.168.0.3'
+    volumes:
+      #- $USERDIR/DNSCrypt/dnscrypt-proxy.toml:/etc/dnscrypt-proxy/dnscrypt-proxy.toml # Uncomment if you want to define your own dnscrypt-proxy.toml file
+      - /etc/localtime:/etc/localtime
     restart: always
     mem_limit: 100m
     mem_reservation: 30m
-
-volumes:
-  DNSCrypt:
 ```
 ---------------
 
