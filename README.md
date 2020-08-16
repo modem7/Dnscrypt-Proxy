@@ -26,15 +26,13 @@ services:
     # image: modem7/dnscrypt-proxy:latest
     container_name: Dnscrypt-proxy
     hostname: DNSCrypt
-    environment:
-      TZ: '$TZ'
     dns:
       - 127.0.0.1
     ports:
       - "53:53"
     volumes:
       #- $USERDIR/DNSCrypt/dnscrypt-proxy.toml:/etc/dnscrypt-proxy/dnscrypt-proxy.toml # Uncomment if you want to define your own dnscrypt-proxy.toml file
-      - /etc/localtime:/etc/localtime
+      - /etc/localtime:/etc/localtime:ro
     restart: always
     mem_limit: 100m
     mem_reservation: 30m
