@@ -54,8 +54,6 @@ dnscrypt/dnscrypt-proxy.toml
 
 Modify servers to meet your needs, adjust other params if desired.  For more detail around those settings, see: https://github.com/jedisct1/dnscrypt-proxy/wiki/Configuration-Sources
 
-Modify dnscrypt-proxy/Dockerfile if you want to adjust the monitor
-
 Run the build:
 ```bash
 docker build -f dnscrypt-proxy/Dockerfile dnscrypt-proxy/ -t dnscrypt-proxy-build
