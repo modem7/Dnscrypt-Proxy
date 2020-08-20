@@ -24,8 +24,7 @@ services:
 
   #DNSCrypt-Proxy - Non-caching, Non-logging, DNSSEC DNS Resolver
   dnscrypt-proxy:
-    image: modem7/dnscrypttest:latest 
-    # image: modem7/dnscrypt-proxy:latest
+    image: modem7/dnscrypt-proxy:latest
     container_name: Dnscrypt-proxy
     hostname: DNSCrypt
     dns:
