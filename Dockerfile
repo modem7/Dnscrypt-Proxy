@@ -22,7 +22,7 @@ COPY example-dnscrypt-proxy.toml /etc/dnscrypt-proxy/example-dnscrypt-proxy.toml
 
 USER dnscrypt
 
-HEALTHCHECK --interval=5s --timeout=3s --start-period=10s \
+HEALTHCHECK --interval=20s --timeout=20s --retries=3 --start-period=10s \
     CMD drill -p $LOCAL_PORT one.one.one.one @127.0.0.1 || exit 1
 
 CMD /usr/bin/dnscrypt-proxy -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml
