@@ -14,9 +14,6 @@ RUN apk update && \
 
 EXPOSE $LOCAL_PORT/udp
 
-# Environment
-ENV TZ Europe/London
-
 COPY dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml
 COPY example-dnscrypt-proxy.toml /etc/dnscrypt-proxy/example-dnscrypt-proxy.toml
 
