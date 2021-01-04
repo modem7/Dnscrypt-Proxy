@@ -4,6 +4,8 @@
 
 A DNS server container which utilises several UK and European DNS over HTTPS resolution services (cloudflare, quad9-dnscrypt-ip4-nofilter-pri, quad9-dnscrypt-ip4-nofilter-alt, quad9-doh-ip4-filter-alt, quad9-doh-ip4-filter-pri, doh-crypto-sx, dnscrypt.uk-ipv4, cs-uk, v.dnscrypt.uk-ipv4) by utilizing DNSCrypt Proxy (https://github.com/jedisct1/dnscrypt-proxy, https://dnscrypt.info/).
 
+Please note that the config file has DNS Cache disabled. This is due to my configuration of using Pihole as the DNS Cache. If you are not using a separate DNS cache system like Pihole, it is recommended to enable this in the config file under "DNS Cache".
+
 In this config, tcp and udp port 53 must be free on the host:
 
 ```bash
