@@ -48,7 +48,7 @@ If you want to modify the server list being used or other parameters you can clo
 Alternatively: Uncomment the value in volumes to substitute your own local configuration.
 
 Clone Repo:
-git clone https://github.com/modem7/Docker.git
+git clone https://github.com/modem7/Dnscrypt-Proxy.git
 
 Modify DNSCrypt-Proxy config:
 dnscrypt/dnscrypt-proxy.toml
