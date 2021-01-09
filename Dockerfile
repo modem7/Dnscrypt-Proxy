@@ -12,7 +12,21 @@ RUN apk update && \
     drill && \
     rm -rf /var/cache/apk/* && rm -rf /tmp/*
 
-RUN addgroup -S dnscrypt && adduser -S dnscrypt -G dnscrypt
+#RUN addgroup -S dnscrypt && adduser -S dnscrypt -G dnscrypt
+ENV USER=dnscrypt
+ENV PUID=12345
+ENV PGID=23456
+
+RUN addgroup \
+    --gid "$PGID"
+
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --ingroup "$USER" \
+    --no-create-home \
+    --uid "$PUID" \
+    "$USER"
 
 EXPOSE $LOCAL_PORT/udp
 
