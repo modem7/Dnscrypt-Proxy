@@ -12,8 +12,6 @@ RUN apk update && \
     drill && \
     rm -rf /var/cache/apk/* && rm -rf /tmp/*
 
-RUN addgroup -S dnscrypt && adduser -S dnscrypt -G dnscrypt
-
 EXPOSE $LOCAL_PORT/udp
 
 COPY dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml
