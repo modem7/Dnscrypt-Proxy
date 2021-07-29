@@ -21,3 +21,4 @@ trigger:
   - promote
   target:
   - 2.0.45
+  - production
