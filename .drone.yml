@@ -20,4 +20,4 @@ trigger:
   event:
   - promote
   target:
-  - production
+  - 2.0.45
