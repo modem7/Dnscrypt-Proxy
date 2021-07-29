@@ -16,8 +16,8 @@ steps:
       - latest 
       - 2.0.45
 
-# trigger:
-  # event:
-  # - cron
-  # cron:
-  # - hastebin_latest
+trigger:
+  event:
+  - promote
+  target:
+  - production
