@@ -1,0 +1,23 @@
+kind: pipeline
+type: docker
+name: publish 
+
+steps:
+- name: publish
+  image: plugins/docker
+  settings:
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+    purge: true
+    repo: modem7/dnscrypt-proxy
+    tags: 
+      - latest 
+      - 2.0.45
+
+# trigger:
+  # event:
+  # - cron
+  # cron:
+  # - hastebin_latest
