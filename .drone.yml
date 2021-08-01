@@ -1,15 +1,16 @@
 kind: pipeline
 type: docker
-name: default
+name: deploy
 
 platform:
   os: linux
   arch: amd64
 
 steps:
-- name: docker  
+- name: deploy  
   image: thegeeklab/drone-docker-buildx
   privileged: true
+  purge: true
   settings:
     repo: modem7/dnscrypt-proxy
     tags: 
