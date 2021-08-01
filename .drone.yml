@@ -1,13 +1,13 @@
 kind: pipeline
 type: docker
-name: default
+name: deploy
 
 platform:
   os: linux
   arch: amd64
 
 steps:
-- name: docker  
+- name: deploy  
   image: thegeeklab/drone-docker-buildx
   privileged: true
   settings:
@@ -15,18 +15,20 @@ steps:
     tags: 
       - latest 
       - 2.0.45
-    platforms: linux/amd64,linux/arm64,linux/arm/v6,linux/arm/v7,linux/arm/v8
+    platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8
+    purge: true
+    cache_from: "modem7/dnscrypt-proxy:latest"
     username:
       from_secret: docker_username
     password:
       from_secret: docker_password
 
-trigger:
-  event:
-  - promote
-  target:
-  - 2.0.45
-  - production
+# trigger:
+  # event:
+  # - promote
+  # target:
+  # - 2.0.45
+  # - production
 
 # ---
 
