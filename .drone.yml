@@ -1,20 +1,25 @@
 kind: pipeline
 type: docker
-name: publish 
+name: default
+
+platform:
+  os: linux
+  arch: amd64
 
 steps:
-- name: publish
-  image: plugins/docker
+- name: docker  
+  image: thegeeklab/drone-docker-buildx
+  privileged: true
   settings:
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
-    purge: true
     repo: modem7/dnscrypt-proxy
     tags: 
       - latest 
       - 2.0.45
+    platforms: linux/amd64,linux/arm64,linux/arm/v6,linux/arm/v7,linux/arm/v8
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
 
 trigger:
   event:
@@ -22,3 +27,23 @@ trigger:
   target:
   - 2.0.45
   - production
+
+# ---
+
+#Doesn't work currently - https://github.com/christian-korneck/docker-pushrm/blob/master/README.md#limitations
+
+# kind: pipeline
+# type: docker
+# name: readme
+
+# steps:
+# - name: readme
+  # image: chko/docker-pushrm
+  # environment:
+    # DOCKER_PASS:
+      # from_secret: docker_password
+    # DOCKER_USER:
+      # from_secret: docker_username
+    # INPUT_FILE: README.md
+    # PUSHRM_TARGET: modem7/test
+    # SHORT_DESCRIPTION: "DNSCrypt"
