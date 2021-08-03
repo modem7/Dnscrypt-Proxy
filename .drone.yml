@@ -13,7 +13,7 @@ steps:
   pull: if-not-exists
   commands:
     - hadolint --version
-    - hadolint Dockerfile*
+    - hadolint Dockerfile
 
 - name: deploy  
   image: thegeeklab/drone-docker-buildx
