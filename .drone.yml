@@ -1,13 +1,8 @@
 kind: pipeline
 type: docker
-name: deploy
-
-platform:
-  os: linux
-  arch: amd64
+name: lint
 
 steps:
-
 - name: Lint Dockerfile
   image: hadolint/hadolint:latest-debian
   pull: if-not-exists
@@ -15,6 +10,15 @@ steps:
     - hadolint --version
     - hadolint Dockerfile
 
+---
+kind: pipeline
+type: docker
+name: deploy
+
+platform:
+  os: linux
+  arch: amd64
+ 
 - name: deploy  
   image: thegeeklab/drone-docker-buildx
   privileged: true
@@ -33,6 +37,9 @@ steps:
       from_secret: docker_username
     password:
       from_secret: docker_password
+
+depends_on:
+  - lint
 
 # - name: pushrm-dockerhub
   # image: chko/docker-pushrm:1
