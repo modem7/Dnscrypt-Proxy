@@ -8,9 +8,10 @@ steps:
   pull: if-not-exists
   commands:
     - hadolint --version
-    - hadolint Dockerfile
+    - hadolint Dockerfile*
 
 ---
+
 kind: pipeline
 type: docker
 name: deploy
