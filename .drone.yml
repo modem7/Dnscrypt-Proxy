@@ -17,6 +17,7 @@ steps:
       - 2.0.45
     platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8
     purge: true
+    dry_run: true #disable when not testing
     compress: true
     cache_from: "modem7/dnscrypt-proxy:latest"
     username:
