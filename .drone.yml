@@ -1,3 +1,4 @@
+---
 kind: pipeline
 type: docker
 name: lint
@@ -5,7 +6,6 @@ name: lint
 steps:
 - name: Lint Dockerfile
   image: hadolint/hadolint:latest-debian
-  pull: if-not-exists
   commands:
     - hadolint --version
     - hadolint Dockerfile*
