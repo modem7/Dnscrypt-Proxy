@@ -28,7 +28,7 @@ steps:
   image: chko/docker-pushrm:1
   environment:
     DOCKER_PASS:
-      from_secret: ci_test
+      from_secret: ci_pass
     DOCKER_USER:
       from_secret: docker_username
     PUSHRM_FILE: README.md
