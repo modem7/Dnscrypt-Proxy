@@ -1,2 +1,4 @@
-ignored:
-  - DL3018
+override:
+  style:
+    - DL3018
+    - DL3025
