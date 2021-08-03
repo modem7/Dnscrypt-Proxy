@@ -24,19 +24,19 @@ steps:
     password:
       from_secret: docker_password
 
-- name: pushrm-dockerhub
-  image: chko/docker-pushrm:1
-  environment:
-    DOCKER_PASS:
-      from_secret: ci_pass
-    DOCKER_USER:
-      from_secret: docker_username
-    PUSHRM_FILE: README.md
-    PUSHRM_SHORT: A DNS server container using several UK/European DoH resolution services via DNSCrypt Proxy
-    PUSHRM_TARGET: modem7/dnscrypt-proxy
-  when:
-    status:
-    - success
+# - name: pushrm-dockerhub
+  # image: chko/docker-pushrm:1
+  # environment:
+    # DOCKER_PASS:
+      # from_secret: docker_password
+    # DOCKER_USER:
+      # from_secret: docker_username
+    # PUSHRM_FILE: README.md
+    # PUSHRM_SHORT: A DNS server container using several UK/European DoH resolution services via DNSCrypt Proxy
+    # PUSHRM_TARGET: modem7/dnscrypt-proxy
+  # when:
+    # status:
+    # - success
 
 # trigger:
   # event:
