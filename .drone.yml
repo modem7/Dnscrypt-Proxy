@@ -7,6 +7,14 @@ platform:
   arch: amd64
 
 steps:
+
+- name: Lint Dockerfile
+  image: hadolint/hadolint:latest-debian
+  pull: if-not-exists
+  commands:
+    - hadolint --version
+    - hadolint Dockerfile*
+
 - name: deploy  
   image: thegeeklab/drone-docker-buildx
   privileged: true
