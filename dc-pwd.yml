@@ -3,6 +3,5 @@ version: '3'
 services:
   dnscrypt-proxy:
     image: modem7/dnscrypt-proxy:latest
-    container_name: Dnscrypt-proxy
     ports:
       - '53:53'
