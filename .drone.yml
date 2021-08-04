@@ -43,6 +43,8 @@ steps:
 depends_on:
   - lint
 
+# Doesn't work currently - https://github.com/christian-korneck/docker-pushrm/blob/master/README.md#limitations
+
 # - name: pushrm-dockerhub
   # image: chko/docker-pushrm:1
   # environment:
@@ -57,16 +59,16 @@ depends_on:
     # status:
     # - success
 
-# trigger:
-  # event:
-  # - promote
-  # target:
-  # - 2.0.45
-  # - production
+trigger:
+  event:
+  - promote
+  target:
+  - 2.0.45
+  - production
 
 # ---
 
-#Doesn't work currently - https://github.com/christian-korneck/docker-pushrm/blob/master/README.md#limitations
+
 
 # kind: pipeline
 # type: docker
