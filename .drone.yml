@@ -59,12 +59,12 @@ depends_on:
     # status:
     # - success
 
-# trigger:
-  # event:
-  # - promote
-  # target:
-  # - 2.0.45
-  # - production
+trigger:
+  event:
+  - promote
+  target:
+  - 2.0.45
+  - production
 
 # ---
 
