@@ -1,13 +1,8 @@
 version: '3'
 
 services:
- #DNSCrypt-Proxy - Non-caching, Non-logging, DNSSEC DNS Resolver
   dnscrypt-proxy:
-    # image: modem7/dnscrypt-proxy:2.0.45
     image: modem7/dnscrypt-proxy:latest
     container_name: Dnscrypt-proxy
     ports:
-      - "53:53"
-    restart: always
-    mem_limit: 100m
-    mem_reservation: 30m
+      - '53:53'
