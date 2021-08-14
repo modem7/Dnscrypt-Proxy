@@ -40,15 +40,8 @@ steps:
       password:
         from_secret: docker_password
 
-- name: slack
-  image: plugins/slack
-  settings:
-    webhook:
-      from_secret: slack_hook
-  when:
-    status: [ success, failure ]
-
-# Doesn't work currently - https://github.com/christian-korneck/docker-pushrm/blob/master/README.md#limitations
+depends_on:
+  - lint
 
 # - name: pushrm-dockerhub
   # image: chko/docker-pushrm:1
@@ -71,5 +64,22 @@ steps:
   # - 2.0.45
   # - production
 
-depends_on:
-  - lint
+# ---
+
+#Doesn't work currently - https://github.com/christian-korneck/docker-pushrm/blob/master/README.md#limitations
+
+# kind: pipeline
+# type: docker
+# name: readme
+
+# steps:
+# - name: readme
+  # image: chko/docker-pushrm
+  # environment:
+    # DOCKER_PASS:
+      # from_secret: docker_password
+    # DOCKER_USER:
+      # from_secret: docker_username
+    # INPUT_FILE: README.md
+    # PUSHRM_TARGET: modem7/test
+    # SHORT_DESCRIPTION: "DNSCrypt"
