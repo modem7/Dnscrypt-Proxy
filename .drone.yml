@@ -40,15 +40,8 @@ steps:
       password:
         from_secret: docker_password
 
-- name: slack
-  image: plugins/slack
-  settings:
-    webhook:
-      from_secret: slack_hook
-  when:
-    status: [ success, failure ]
-
-# Doesn't work currently - https://github.com/christian-korneck/docker-pushrm/blob/master/README.md#limitations
+depends_on:
+  - lint
 
 # - name: pushrm-dockerhub
   # image: chko/docker-pushrm:1
@@ -70,6 +63,3 @@ steps:
   # target:
   # - 2.0.45
   # - production
-
-depends_on:
-  - lint
