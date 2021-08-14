@@ -26,9 +26,6 @@ steps:
     privileged: true
     settings:
       repo: modem7/dnscrypt-proxy
-      tags:
-        - latest
-        - 2.0.45
       platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8
       purge: true
       dry_run: true  # disable when not testing
@@ -39,6 +36,9 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
+      tags:
+        - latest
+        - 2.0.45
 
 - name: slack
   image: plugins/slack
