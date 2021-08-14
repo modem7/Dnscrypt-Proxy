@@ -40,13 +40,13 @@ steps:
         - latest
         - 2.0.45
 
-- name: slack
-  image: plugins/slack
-  settings:
-    webhook:
-      from_secret: slack_hook
-  when:
-    status: [ success, failure ]
+  - name: slack
+    image: plugins/slack
+    settings:
+      webhook:
+        from_secret: slack_hook
+    when:
+      status: [ success, failure ]
 
 depends_on:
   - lint
