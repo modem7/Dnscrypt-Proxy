@@ -29,7 +29,11 @@ steps:
       tags:
         - latest
         - 2.0.45
-      platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8
+    platforms: # if it doesn't work run docker run --privileged --rm tonistiigi/binfmt --install all
+      - linux/amd64
+      - linux/arm/v6
+      - linux/arm/v7
+      - linux/arm64/v8
       purge: true
       dry_run: true  # disable when not testing
       compress: true
@@ -73,23 +77,3 @@ trigger:
   target:
   - 2.0.45
   - production
-
-# ---
-
-
-
-# kind: pipeline
-# type: docker
-# name: readme
-
-# steps:
-# - name: readme
-  # image: chko/docker-pushrm
-  # environment:
-    # DOCKER_PASS:
-      # from_secret: docker_password
-    # DOCKER_USER:
-      # from_secret: docker_username
-    # INPUT_FILE: README.md
-    # PUSHRM_TARGET: modem7/test
-    # SHORT_DESCRIPTION: "DNSCrypt"
