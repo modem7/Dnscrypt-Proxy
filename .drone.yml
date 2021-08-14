@@ -21,7 +21,7 @@ platform:
   arch: amd64
 
 steps:
-  - name: latest  
+  - name: latest
     image: thegeeklab/drone-docker-buildx
     privileged: true
     settings:
@@ -31,7 +31,7 @@ steps:
       compress: true
       use_cache: true
       cache_from: "modem7/dnscrypt-proxy:latest"
-      platforms: # if it doesn't work run docker run --privileged --rm tonistiigi/binfmt --install all
+      platforms:  # if it doesn't work run docker run --privileged --rm tonistiigi/binfmt --install all
         - linux/amd64
         - linux/arm/v6
         - linux/arm/v7
