@@ -14,23 +14,6 @@ steps:
 
 kind: pipeline
 type: docker
-name: testing
-
-steps:
-  - name: Testing
-    image: tonistiigi/binfmt
-    privileged: true
-    # group: test
-    commands:
-      - install all
-
-depends_on:
-  - lint
-
----
-
-kind: pipeline
-type: docker
 name: deploy
 
 platform:
@@ -43,7 +26,7 @@ steps:
     privileged: true
     settings:
       repo: modem7/dnscrypt-proxy
-      dry_run: true  # disable when not testing
+      # dry_run: true  # disable when not testing
       purge: true
       compress: true
       use_cache: true
