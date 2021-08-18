@@ -5,12 +5,9 @@
 #                                            #
 ##############################################
 
-## This is an example configuration file.
-## You should adjust it to your needs, and save it as "dnscrypt-proxy.toml"
+## You should adjust this file to your needs, and save it as "dnscrypt-proxy.toml"
 ##
 ## Online documentation is available here: https://dnscrypt.info/doc
-
-
 
 ##################################
 #         Global settings        #
@@ -29,19 +26,22 @@
 ##
 ## Remove the leading # first to enable this; lines starting with # are ignored.
 
-server_names = ['cloudflare', 'quad9-dnscrypt-ip4-nofilter-pri', 'quad9-dnscrypt-ip4-nofilter-alt', 'quad9-doh-ip4-filter-alt', 'quad9-doh-ip4-filter-pri', 'doh-crypto-sx', 'dnscrypt.uk-ipv4', 'a-and-a', 'v.dnscrypt.uk-ipv4']
+# server_names = ['scaleway-fr', 'google', 'yandex', 'cloudflare']
 
 
 ## List of local addresses and ports to listen to. Can be IPv4 and/or IPv6.
 ## Example with both IPv4 and IPv6:
 ## listen_addresses = ['127.0.0.1:53', '[::1]:53']
+##
+## To listen to all IPv4 addresses, use `listen_addresses = ['0.0.0.0:53']`
+## To listen to all IPv4+IPv6 addresses, use `listen_addresses = ['[::]:53']`
 
 listen_addresses = ['0.0.0.0:53']
-
+#listen_addresses = ['0.0.0.0:5353']
 
 ## Maximum number of simultaneous client connections to accept
 
-max_clients = 250
+max_clients = 1000
 
 
 ## Switch to a different system user after listening sockets have been created.
@@ -49,7 +49,7 @@ max_clients = 250
 ## Note (2): this feature is not compatible with systemd socket activation.
 ## Note (3): when using -pidfile, the PID file directory must be writable by the new user
 
-# user_name = 'nobody'
+#user_name = 'dnscrypt'
 
 
 ## Require servers (from static + remote sources) to satisfy specific properties
@@ -64,7 +64,12 @@ ipv6_servers = false
 dnscrypt_servers = true
 
 # Use servers implementing the DNS-over-HTTPS protocol
-doh_servers = true
+#doh_servers = true
+#disabling as we only want dnscrypt servers - https://githubmemory.com/repo/BL4CKH47H4CK3R/Hardened-Anonymized-DNSCrypt-Proxy
+doh_servers = false
+
+# Use servers implementing the Oblivious DoH protocol
+odoh_servers = false
 
 
 ## Require servers defined by remote sources to satisfy specific properties
@@ -75,12 +80,13 @@ require_dnssec = true
 # Server must not log user queries (declarative)
 require_nolog = true
 
-# Server must not enforce its own blocklist (for parental control, ads blocking...)
+# Server must not enforce its own blacklist (for parental control, ads blocking...)
 require_nofilter = true
 
 # Server names to avoid even if they match all criteria
-disabled_server_names = []
-
+#disabled_server_names = ['dnscrypt.uk-ipv4', 'cs-de', 'cs-fr']
+# High latency servers disabled
+disabled_server_names = ['dnscrypt.uk-ipv4', 'cs-de', 'cs-fr', 'zackptg5-us-pit-ipv4', 'dnscrypt.ca-2', 'plan9-ns1', 'zackptg5-us-il-ipv4', 'plan9-ns2', 'moulticast-ca-ipv4', 'wevpn-uswest', 'arvind-io', 'moulticast-sg-ipv4', 'saldns01-conoha-ipv4', 'saldns02-conoha-ipv4', 'd0wn-tz-ns1', 'publicarray-au2', 'saldnssg01-conoha-ipv4', 'userspace-australia', 'jp.tiar.app', 'publicarray-au', 'deffer-dns.au', 'wevpn-useast', 'dnscrypt.ca-1', 'dama.no sa-a80']
 
 ## Always use TCP to connect to upstream servers.
 ## This can be useful if you need to route everything through Tor.
@@ -103,19 +109,19 @@ force_tcp = false
 
 # http_proxy = 'http://127.0.0.1:8888'
 
-
 ## How long a DNS query will wait for a response, in milliseconds.
 ## If you have a network with *a lot* of latency, you may need to
 ## increase this. Startup may be slower if you do so.
 ## Don't increase it too much. 10000 is the highest reasonable value.
 
+# AL Change 21/05/21 - https://githubmemory.com/repo/BL4CKH47H4CK3R/Hardened-Anonymized-DNSCrypt-Proxy
 timeout = 5000
+#timeout = 1000
 
 
 ## Keepalive for HTTP (HTTPS, HTTP/2) queries, in seconds
 
 keepalive = 30
-
 
 ## Add EDNS-client-subnet information to outgoing queries
 ##
@@ -124,50 +130,37 @@ keepalive = 30
 
 # edns_client_subnet = ["0.0.0.0/0", "2001:db8::/32"]
 
-
-## Response for blocked queries. Options are `refused`, `hinfo` (default) or
-## an IP response. To give an IP response, use the format `a:<IPv4>,aaaa:<IPv6>`.
+## Response for blocked queries.  Options are `refused`, `hinfo` (default) or
+## an IP response.  To give an IP response, use the format `a:<IPv4>,aaaa:<IPv6>`.
 ## Using the `hinfo` option means that some responses will be lies.
 ## Unfortunately, the `hinfo` option appears to be required for Android 8+
 
-# blocked_query_response = 'refused'
+# https://githubmemory.com/repo/BL4CKH47H4CK3R/Hardened-Anonymized-DNSCrypt-Proxy
+blocked_query_response = 'refused'
 
+## Load-balancing strategy: 'p2' (default), 'ph', 'first' or 'random'
 
-## Load-balancing strategy: 'p2' (default), 'ph', 'p<n>', 'first' or 'random'
-## Randomly choose 1 of the fastest 2, half, n, 1 or all live servers by latency.
-## The response quality still depends on the server itself.
-
-# lb_strategy = 'p2'
+lb_strategy = 'p2'
 
 ## Set to `true` to constantly try to estimate the latency of all the resolvers
 ## and adjust the load-balancing parameters accordingly, or to `false` to disable.
-## Default is `true` that makes 'p2' `lb_strategy` work well.
 
-# lb_estimator = true
+lb_estimator = true
 
 
 ## Log level (0-6, default: 2 - 0 is very verbose, 6 only contains fatal errors)
 
-# log_level = 2
+log_level = 2
 
 
-## Log file for the application, as an alternative to sending logs to
-## the standard system logging service (syslog/Windows event log).
-##
-## This file is different from other log files, and will not be
-## automatically rotated by the application.
+## log file for the application
 
 log_file = '/dev/stdout'
 
 
-## When using a log file, only keep logs from the most recent launch.
-
-# log_file_latest = true
-
-
 ## Use the system logger (syslog on Unix, Event Log on Windows)
 
-# use_syslog = true
+#use_syslog = true
 
 
 ## Delay, in minutes, after which certificates are reloaded
@@ -205,27 +198,39 @@ cert_refresh_delay = 240
 # tls_cipher_suite = [52392, 49199]
 
 
-## Fallback resolvers
+## Bootstrap resolvers
+##
 ## These are normal, non-encrypted DNS resolvers, that will be only used
-## for one-shot queries when retrieving the initial resolvers list, and
-## only if the system DNS configuration doesn't work.
+## for one-shot queries when retrieving the initial resolvers list and the
+## the system DNS configuration doesn't work.
 ##
-## No user application queries will ever be leaked through these resolvers,
-## and they will not be used after IP addresses of resolvers URLs have been found.
-## They will never be used if lists have already been cached, and if stamps
-## don't include host names without IP addresses.
+## No user queries will ever be leaked through these resolvers, and they will
+## not be used after IP addresses of DoH resolvers have been found (if you are
+## using DoH).
 ##
-## They will not be used if the configured system DNS works.
+## They will never be used if lists have already been cached, and if the stamps
+## of the configured servers already include IP addresses (which is the case for
+## most of DoH servers, and for all DNSCrypt servers and relays).
+##
+## They will not be used if the configured system DNS works, or after the
+## proxy already has at least one usable secure resolver.
+##
 ## Resolvers supporting DNSSEC are recommended, and, if you are using
-## DoH, fallback resolvers should ideally be operated by a different entity than
-## the DoH servers you will be using, especially if you have IPv6 enabled.
+## DoH, bootstrap resolvers should ideally be operated by a different entity
+## than the DoH servers you will be using, especially if you have IPv6 enabled.
 ##
-## People in China may need to use 114.114.114.114:53 here.
-## Other popular options include 8.8.8.8 and 1.1.1.1.
+## People in China may want to use 114.114.114.114:53 here.
+## Other popular options include 8.8.8.8, 9.9.9.9 and 1.1.1.1.
 ##
 ## If more than one resolver is specified, they will be tried in sequence.
+##
+## TL;DR: put valid standard resolver addresses here. Your actual queries will
+## not be sent there. If you're using DNSCrypt or Anonymized DNS and your
+## lists are up to date, these resolvers will not even be used.
 
-fallback_resolvers = ['9.9.9.9:53', '8.8.8.8:53']
+# bootstrap_resolvers = ['9.9.9.9:53', '8.8.8.8:53']
+# https://githubmemory.com/repo/BL4CKH47H4CK3R/Hardened-Anonymized-DNSCrypt-Proxy
+bootstrap_resolvers = ['91.239.100.100:53', '89.233.43.71:53']
 
 
 ## Always use the fallback resolver before the system DNS settings.
@@ -251,8 +256,9 @@ netprobe_timeout = 60
 ## On other operating systems, the connection will be initialized
 ## but nothing will be sent at all.
 
-netprobe_address = '9.9.9.9:53'
-
+#netprobe_address = '9.9.9.9:53'
+# https://githubmemory.com/repo/BL4CKH47H4CK3R/Hardened-Anonymized-DNSCrypt-Proxy
+netprobe_address = '91.239.100.100:53'
 
 ## Offline mode - Do not use any remote encrypted servers.
 ## The proxy will remain fully functional to respond to queries that
@@ -265,10 +271,10 @@ netprobe_address = '9.9.9.9:53'
 ## These strings will be added as TXT records to queries.
 ## Do not use, except on servers explicitly asking for extra data
 ## to be present.
-## encrypted-dns-server can be configured to use this for access control
-## in the [access_control] section
+																		
+								  
 
-# query_meta = ['key1:value1', 'key2:value2', 'token:MySecretToken']
+# query_meta = ["key1:value1", "key2:value2", "key3:value3"]
 
 
 ## Automatic log files rotation
@@ -281,7 +287,6 @@ log_files_max_age = 7
 
 # Maximum log files backups to keep (or 0 to keep all backups)
 log_files_max_backups = 1
-
 
 
 #########################
@@ -298,7 +303,7 @@ log_files_max_backups = 1
 ## This makes things faster when there is no IPv6 connectivity, but can
 ## also cause reliability issues with some stub resolvers.
 
-block_ipv6 = false
+block_ipv6 = true
 
 
 ## Immediately respond to A and AAAA queries for host names without a domain name
@@ -315,8 +320,7 @@ block_undelegated = true
 ## TTL for synthetic responses sent when a request has been blocked (due to
 ## IPv6 or blocklists).
 
-reject_ttl = 600
-
+reject_ttl = 10
 
 
 ##################################################################################
@@ -325,7 +329,7 @@ reject_ttl = 600
 
 ## See the `example-forwarding-rules.txt` file for an example
 
-# forwarding_rules = 'forwarding-rules.txt'
+# forwarding_rules = '/etc/dnscrypt-proxy/forwarding-rules.txt'
 
 
 
@@ -339,12 +343,11 @@ reject_ttl = 600
 ##
 ## See the `example-cloaking-rules.txt` file for an example
 
-# cloaking_rules = 'cloaking-rules.txt'
+# cloaking_rules = '/etc/dnscrypt-proxy/cloaking-rules.txt'
 
 ## TTL used when serving entries in cloaking-rules.txt
 
 # cloak_ttl = 600
-
 
 
 ###########################
@@ -353,13 +356,14 @@ reject_ttl = 600
 
 ## Enable a DNS cache to reduce latency and outgoing traffic
 
-cache = false
-
+# cache = false
+cache = true
 
 ## Cache size
 
-cache_size = 4096
-
+# cache_size = 4096
+# AL Change
+cache_size = 8192
 
 ## Minimum TTL for cached entries
 
@@ -380,8 +384,6 @@ cache_neg_min_ttl = 60
 
 cache_neg_max_ttl = 600
 
-
-
 ########################################
 #        Captive portal handling       #
 ########################################
@@ -393,7 +395,6 @@ cache_neg_max_ttl = 600
 ## IP addresses to return.
 
 # map_file = 'example-captive-portals.txt'
-
 
 
 ##################################
@@ -653,36 +654,51 @@ cache_neg_max_ttl = 600
   ## An example of a remote source from https://github.com/DNSCrypt/dnscrypt-resolvers
 
   [sources.'public-resolvers']
-  urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md', 'https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/public-resolvers.md', 'https://download.dnscrypt.net/resolvers-list/v3/public-resolvers.md']
-  cache_file = 'public-resolvers.md'
-  minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
-  refresh_delay = 72
-  prefix = ''
+    urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md', 'https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/public-resolvers.md', 'https://download.dnscrypt.net/resolvers-list/v3/public-resolvers.md']
+    cache_file = 'public-resolvers.md'
+    minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+    refresh_delay = 72
+    prefix = ''
 
   ## Anonymized DNS relays
 
   [sources.'relays']
-  urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/relays.md', 'https://download.dnscrypt.info/resolvers-list/v3/relays.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/relays.md', 'https://download.dnscrypt.net/resolvers-list/v3/relays.md']
-  cache_file = 'relays.md'
-  minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
-  refresh_delay = 72
-  prefix = ''
+    urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/relays.md', 'https://download.dnscrypt.info/resolvers-list/v3/relays.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/relays.md', 'https://download.dnscrypt.net/resolvers-list/v3/relays.md']
+    cache_file = 'relays.md'
+    minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+    refresh_delay = 72
+    prefix = ''
 
-  ## Quad9 over DNSCrypt - https://quad9.net/
+  ## ODoH (Oblivious DoH) servers and relays
+
+  # [sources.'odoh-servers']
+  #   urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/odoh-servers.md', 'https://download.dnscrypt.info/resolvers-list/v3/odoh-servers.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/odoh-servers.md', 'https://download.dnscrypt.net/resolvers-list/v3/odoh-servers.md']
+  #   cache_file = 'odoh-servers.md'
+  #   minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+  #   refresh_delay = 24
+  #   prefix = ''
+  # [sources.'odoh-relays']
+  #   urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/odoh-relays.md', 'https://download.dnscrypt.info/resolvers-list/v3/odoh-relays.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/odoh-relays.md', 'https://download.dnscrypt.net/resolvers-list/v3/odoh-relays.md']
+  #   cache_file = 'odoh-relays.md'
+  #   minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+  #   refresh_delay = 24
+  #   prefix = ''
+
+  ## Quad9
 
   # [sources.quad9-resolvers]
-  # urls = ['https://www.quad9.net/quad9-resolvers.md']
-  # minisign_key = 'RWQBphd2+f6eiAqBsvDZEBXBGHQBJfeG6G+wJPPKxCZMoEQYpmoysKUN'
-  # cache_file = 'quad9-resolvers.md'
-  # prefix = 'quad9-'
+  #   urls = ['https://www.quad9.net/quad9-resolvers.md']
+  #   minisign_key = 'RWQBphd2+f6eiAqBsvDZEBXBGHQBJfeG6G+wJPPKxCZMoEQYpmoysKUN'
+  #   cache_file = 'quad9-resolvers.md'
+  #   prefix = 'quad9-'
 
   ## Another example source, with resolvers censoring some websites not appropriate for children
   ## This is a subset of the `public-resolvers` list, so enabling both is useless
 
   #  [sources.'parental-control']
-  #  urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/parental-control.md', 'https://download.dnscrypt.info/resolvers-list/v3/parental-control.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/parental-control.md', 'https://download.dnscrypt.net/resolvers-list/v3/parental-control.md']
-  #  cache_file = 'parental-control.md'
-  #  minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+  #    urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/parental-control.md', 'https://download.dnscrypt.info/resolvers-list/v3/parental-control.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/parental-control.md', 'https://download.dnscrypt.net/resolvers-list/v3/parental-control.md']
+  #    cache_file = 'parental-control.md'
+  #    minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
 
 
 
@@ -706,7 +722,6 @@ cache_neg_max_ttl = 600
 fragments_blocked = ['cisco', 'cisco-ipv6', 'cisco-familyshield', 'cisco-familyshield-ipv6', 'cleanbrowsing-adult', 'cleanbrowsing-adult-ipv6', 'cleanbrowsing-family', 'cleanbrowsing-family-ipv6', 'cleanbrowsing-security', 'cleanbrowsing-security-ipv6']
 
 
-
 #################################################################
 #        Certificate-based client authentication for DoH        #
 #################################################################
@@ -721,9 +736,8 @@ fragments_blocked = ['cisco', 'cisco-ipv6', 'cisco-familyshield', 'cisco-familys
 
 #
 # creds = [
-#    { server_name='myserver', client_cert='client.crt', client_key='client.key' }
+#    { server_name='*', client_cert='client.crt', client_key='client.key' }
 # ]
-
 
 
 ################################
@@ -766,10 +780,15 @@ fragments_blocked = ['cisco', 'cisco-ipv6', 'cisco-familyshield', 'cisco-familys
 #    { server_name='example-server-2', via=['sdns://gRIxMzcuNzQuMjIzLjIzNDo0NDM'] }
 # ]
 
+routes = [
+    { server_name='*', via=['anon-dnscrypt.uk-ipv4', 'anon-v.dnscrypt.uk-ipv4', 'anon-cs-de2', 'anon-cs-fr'] }
+#     { server_name='*', via=['*'] }
+]
+
 
 # Skip resolvers incompatible with anonymization instead of using them directly
 
-skip_incompatible = false
+skip_incompatible = true
 
 
 # If public server certificates for a non-conformant server cannot be
@@ -777,8 +796,6 @@ skip_incompatible = false
 # will then always go through relays.
 
 # direct_cert_fallback = false
-
-
 
 ###############################
 #            DNS64            #

@@ -4,11 +4,60 @@ type: docker
 name: lint
 steps:
   - name: Lint Dockerfile
-    image: hadolint/hadolint:latest-debian
+    image: hadolint/hadolint:latest-alpine
     pull: if-not-exists
     commands:
       - hadolint --version
       - hadolint Dockerfile*
+
+---
+
+kind: pipeline
+name: buildtest
+
+steps:
+  - name: Build Test
+    image: docker
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+    commands: 
+      - "docker build -t dnscrypt:test ."
+    when:
+      event: push
+      branch:
+        - master
+
+  - name: Test Run
+    image: dnscrypt:test
+    pull: if-not-exists
+    detach: true
+
+  - name: Pause
+    image: busybox:latest
+    commands:
+      - sleep 5
+
+  - name: Testing
+    image: dnscrypt:test
+    pull: if-not-exists
+    commands:
+      - drill -p 53 -D one.one.one.one || exit 1
+
+volumes: 
+  - name: dockersock
+    host: 
+      path: /var/run/docker.sock
+
+trigger:
+  event:
+    - promote
+  target:
+    - 2.1.0
+    - production
+
+depends_on:
+  - lint
 
 ---
 
@@ -42,7 +91,7 @@ steps:
         from_secret: docker_password
       tags:
         - latest
-        - 2.0.45
+        - 2.1.0
 
   - name: slack
     image: plugins/slack
@@ -72,7 +121,7 @@ trigger:
   event:
     - promote
   target:
-    - 2.0.45
+    - 2.1.0
     - production
 
 depends_on:
