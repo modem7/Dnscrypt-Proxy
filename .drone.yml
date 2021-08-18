@@ -45,13 +45,6 @@ volumes:
     host: 
       path: /var/run/docker.sock
 
-trigger:
-  event:
-    - promote
-  target:
-    - 2.1.0
-    - production
-
 depends_on:
   - lint
 
@@ -78,10 +71,13 @@ steps:
       use_cache: true
       cache_from: "modem7/dnscrypt-proxy:latest"
       platforms:  # if it doesn't work run docker run --privileged --rm tonistiigi/binfmt --install all
+        - linux/386
         - linux/amd64
         - linux/arm/v6
         - linux/arm/v7
         - linux/arm64/v8
+        - linux/ppc64le
+        - linux/s390x
       username:
         from_secret: docker_username
       password:
@@ -120,6 +116,79 @@ trigger:
   target:
     - 2.1.0
     - production
+
+depends_on:
+  - lint
+  - buildtest
+
+---
+
+kind: pipeline
+type: docker
+name: deploy
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+  - name: deploy
+    image: thegeeklab/drone-docker-buildx
+    privileged: true
+    settings:
+      repo: modem7/dnscrypt-proxy
+      # dry_run: true  # disable when not testing
+      purge: true
+      squash: true
+      compress: true
+      use_cache: true
+      cache_from: "modem7/dnscrypt-proxy:2.0.45"
+      platforms:  # if it doesn't work run docker run --privileged --rm tonistiigi/binfmt --install all
+        - linux/386
+        - linux/amd64
+        - linux/arm/v6
+        - linux/arm/v7
+        - linux/arm64/v8
+        - linux/ppc64le
+        - linux/s390x
+      dockerfile: 2.0.45/Dockerfile
+      context: 2.0.45/
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      tags:
+        - 2.0.45
+
+  - name: slack
+    image: plugins/slack
+    settings:
+      webhook:
+        from_secret: slack_hook
+    when:
+      status: [ success, failure ]
+
+# Doesn't work currently - https://github.com/christian-korneck/docker-pushrm/blob/master/README.md#limitations
+
+# - name: pushrm-dockerhub
+  # image: chko/docker-pushrm:1
+  # environment:
+    # DOCKER_PASS:
+      # from_secret: docker_password
+    # DOCKER_USER:
+      # from_secret: docker_username
+    # PUSHRM_FILE: README.md
+    # PUSHRM_SHORT: A DNS server container using several UK/European DoH resolution services via DNSCrypt Proxy
+    # PUSHRM_TARGET: modem7/dnscrypt-proxy
+  # when:
+    # status:
+    # - success
+
+trigger:
+  event:
+  - cron
+  cron:
+  - dnscrypt_2-0-45
 
 depends_on:
   - lint
