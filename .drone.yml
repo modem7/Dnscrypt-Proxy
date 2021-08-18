@@ -184,11 +184,11 @@ steps:
     # status:
     # - success
 
-trigger:
-  event:
-  - cron
-  cron:
-  - dnscrypt_2-0-45
+# trigger:
+  # event:
+  # - cron
+  # cron:
+  # - dnscrypt_2-0-45
 
 depends_on:
   - lint
