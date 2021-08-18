@@ -1,14 +1,13 @@
-FROM alpine:edge
+FROM alpine:3.14
 
-ENV LOCAL_PORT=53
-ENV DNSCRYPT_VERSION=2.1.0-r0
+ENV DNSCRYPT_VERSION 2.0.45-r1
 
 LABEL maintainer="Alex Lane"
 LABEL description="A flexible DNS proxy, with support for modern encrypted DNS protocols \
                    such as DNSCrypt v2 and DNS-over-HTTP/2." \
                    url="https://github.com/jedisct1/dnscrypt-proxy" \
-                   version="{$DNSCRYPT_VERSION}"
-
+                   version={$DNSCRYPT_VERSION}
+ENV LOCAL_PORT 53
 RUN apk update && \
     apk add --no-cache \ 
     dnscrypt-proxy=$DNSCRYPT_VERSION \
