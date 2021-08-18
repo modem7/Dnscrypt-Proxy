@@ -2,7 +2,7 @@
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/modem7/dnscrypt-proxy)](https://hub.docker.com/r/modem7/dnscrypt-proxy) ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/modem7/dnscrypt-proxy/latest) [![Build Status](https://drone.modem7.com/api/badges/modem7/Dnscrypt-Proxy/status.svg)](https://drone.modem7.com/modem7/Dnscrypt-Proxy) [![GitHub last commit](https://img.shields.io/github/last-commit/modem7/Dnscrypt-Proxy)](https://github.com/modem7/Dnscrypt-Proxy)
 
-A DNS server container which utilises several UK and European DNS over HTTPS resolution services (cloudflare, quad9-dnscrypt-ip4-nofilter-pri, quad9-dnscrypt-ip4-nofilter-alt, quad9-doh-ip4-filter-alt, quad9-doh-ip4-filter-pri, doh-crypto-sx, dnscrypt.uk-ipv4, cs-uk, v.dnscrypt.uk-ipv4) by utilizing DNSCrypt Proxy (https://github.com/jedisct1/dnscrypt-proxy, https://dnscrypt.info/).
+A DNS server container which utilises several anonymised DNS over HTTPS resolution services by utilizing DNSCrypt Proxy (https://github.com/jedisct1/dnscrypt-proxy, https://dnscrypt.info/).
 
 In this config, tcp and udp port 53 must be free on the host:
 
