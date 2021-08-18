@@ -1,7 +1,8 @@
 ---
+
 kind: pipeline
-type: docker
-name: lint
+name: buildtest
+
 steps:
   - name: Lint Dockerfile
     image: hadolint/hadolint:latest-alpine
@@ -10,12 +11,6 @@ steps:
       - hadolint --version
       - hadolint Dockerfile*
 
----
-
-kind: pipeline
-name: buildtest
-
-steps:
   - name: Build Test
     image: docker
     volumes:
@@ -45,8 +40,10 @@ volumes:
     host: 
       path: /var/run/docker.sock
 
-depends_on:
-  - lint
+trigger:
+  event:
+    - promote
+    - custom
 
 ---
 
@@ -59,6 +56,13 @@ platform:
   arch: amd64
 
 steps:
+  - name: Lint Dockerfile
+    image: hadolint/hadolint:latest-alpine
+    pull: if-not-exists
+    commands:
+      - hadolint --version
+      - hadolint Dockerfile*
+
   - name: deploy
     image: thegeeklab/drone-docker-buildx
     privileged: true
@@ -87,7 +91,7 @@ steps:
         - 2.1.0
 
   - name: slack
-    image: plugins/slack
+    image: themaz/drone-slack
     settings:
       webhook:
         from_secret: slack_hook
@@ -95,6 +99,7 @@ steps:
       status: [ success, failure ]
 
 # Doesn't work currently - https://github.com/christian-korneck/docker-pushrm/blob/master/README.md#limitations
+# https://github.com/docker/roadmap/issues/115
 
 # - name: pushrm-dockerhub
   # image: chko/docker-pushrm:1
@@ -115,23 +120,28 @@ trigger:
     - promote
   target:
     - 2.1.0
-    - production
 
 depends_on:
-  - lint
   - buildtest
 
 ---
 
 kind: pipeline
 type: docker
-name: deploy
+name: "2.0.45"
 
 platform:
   os: linux
   arch: amd64
 
 steps:
+  - name: Lint Dockerfile
+    image: hadolint/hadolint:latest-alpine
+    pull: if-not-exists
+    commands:
+      - hadolint --version
+      - hadolint Dockerfile*
+
   - name: deploy
     image: thegeeklab/drone-docker-buildx
     privileged: true
@@ -161,7 +171,7 @@ steps:
         - 2.0.45
 
   - name: slack
-    image: plugins/slack
+    image: themaz/drone-slack
     settings:
       webhook:
         from_secret: slack_hook
@@ -169,6 +179,7 @@ steps:
       status: [ success, failure ]
 
 # Doesn't work currently - https://github.com/christian-korneck/docker-pushrm/blob/master/README.md#limitations
+# https://github.com/docker/roadmap/issues/115
 
 # - name: pushrm-dockerhub
   # image: chko/docker-pushrm:1
@@ -184,11 +195,8 @@ steps:
     # status:
     # - success
 
-# trigger:
-  # event:
-  # - cron
-  # cron:
-  # - dnscrypt_2-0-45
-
-depends_on:
-  - lint
+trigger:
+  event:
+  - cron
+  cron:
+  - dnscrypt_2-0-45
