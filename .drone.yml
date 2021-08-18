@@ -23,10 +23,6 @@ steps:
         path: /var/run/docker.sock
     commands: 
       - "docker build -t dnscrypt:test ."
-    when:
-      event: push
-      branch:
-        - master
 
   - name: Test Run
     image: dnscrypt:test
