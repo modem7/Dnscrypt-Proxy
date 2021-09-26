@@ -1,6 +1,6 @@
 FROM alpine:3.14
 
-ENV DNSCRYPT_VERSION 2.0.45-r1
+ENV DNSCRYPT_VERSION 2.0.45-r2
 
 LABEL maintainer="Alex Lane"
 LABEL description="A flexible DNS proxy, with support for modern encrypted DNS protocols \
