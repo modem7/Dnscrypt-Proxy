@@ -14,8 +14,3 @@ updates:
     directory: "/2.0.45" # Location of package manifests
     schedule:
       interval: "daily"
-
-  - package-ecosystem: "docker" # See documentation for possible values
-    directory: "/test" # Location of package manifests
-    schedule:
-      interval: "daily"
