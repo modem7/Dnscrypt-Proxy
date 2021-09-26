@@ -115,11 +115,11 @@ steps:
     # status:
     # - success
 
-# trigger:
-  # event:
-    # - promote
-  # target:
-    # - 2.1.0
+trigger:
+  event:
+    - promote
+  target:
+    - 2.1.0
 
 depends_on:
   - buildtest
@@ -195,8 +195,8 @@ steps:
     # status:
     # - success
 
-# trigger:
-  # event:
-  # - cron
-  # cron:
-  # - dnscrypt_2-0-45
+trigger:
+  event:
+  - cron
+  cron:
+  - dnscrypt_2-0-45
