@@ -65,6 +65,7 @@ steps:
 
   - name: deploy
     image: thegeeklab/drone-docker-buildx
+    privileged: true
     settings:
       repo: modem7/dnscrypt-proxy
       # dry_run: true  # disable when not testing
