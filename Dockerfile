@@ -1,7 +1,7 @@
 FROM alpine:edge
 
 ENV LOCAL_PORT=53
-ENV DNSCRYPT_VERSION=2.1.0-r1
+ENV DNSCRYPT_VERSION=2.1.1-r0
 
 LABEL maintainer="Alex Lane"
 LABEL description="A flexible DNS proxy, with support for modern encrypted DNS protocols \
