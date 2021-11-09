@@ -78,15 +78,13 @@ steps:
         - linux/arm/v6
         - linux/arm/v7
         - linux/arm64/v8
-        - linux/ppc64le
-        - linux/s390x
       username:
         from_secret: docker_username
       password:
         from_secret: docker_password
       tags:
         - latest
-        - 2.1.0
+        - 2.1.1
 
   - name: slack
     image: themaz/drone-slack
@@ -115,9 +113,7 @@ steps:
 
 trigger:
   event:
-    - promote
-  target:
-    - 2.1.0
+    - custom
 
 depends_on:
   - buildtest
