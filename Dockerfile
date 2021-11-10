@@ -9,7 +9,7 @@ LABEL description="A flexible DNS proxy, with support for modern encrypted DNS p
 
 RUN apk update && \
     apk add --no-cache \ 
-    dnscrypt-proxy=2.0.45-r2 \
+    dnscrypt-proxy=2.0.42-r1 \
     drill && \
     rm -rf /var/cache/apk/* && rm -rf /tmp/*
 
