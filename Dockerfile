@@ -9,8 +9,8 @@ LABEL description="A flexible DNS proxy, with support for modern encrypted DNS p
 
 RUN apk update && \
     apk add --no-cache \ 
-    dnscrypt-proxy=2.0.45-r2 \
-    drill && \
+    dnscrypt-proxy=2.1.1-r0 \
+    drill=1.7.2_git20210911-r1 && \
     rm -rf /var/cache/apk/* && rm -rf /tmp/*
 
 EXPOSE $LOCAL_PORT/udp
