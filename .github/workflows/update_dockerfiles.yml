@@ -16,4 +16,3 @@ jobs:
         uses: ludeeus/dockerfile-updater@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          exclude_package: dnscrypt-proxy=2.0.45-r2
