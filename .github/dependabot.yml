@@ -9,8 +9,12 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    assignees:
+      - "modem7"
 
   - package-ecosystem: "docker" # See documentation for possible values
     directory: "/2.0.45" # Location of package manifests
     schedule:
       interval: "daily"
+    assignees:
+      - "modem7"
