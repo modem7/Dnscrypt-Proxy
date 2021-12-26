@@ -12,8 +12,8 @@ updates:
     assignees:
       - "modem7"
 
-  - package-ecosystem: "docker" # See documentation for possible values
-    directory: "/2.0.45" # Location of package manifests
+  - package-ecosystem: github-actions
+    directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
     assignees:
