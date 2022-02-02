@@ -42,7 +42,6 @@ volumes:
 
 trigger:
   event:
-    - promote
     - custom
 
 ---
