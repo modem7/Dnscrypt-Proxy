@@ -2,14 +2,14 @@ FROM alpine:edge
 
 ENV LOCAL_PORT=53
 
-LABEL maintainer="Alex Lane"
+LABEL maintainer="modem7"
 LABEL description="A flexible DNS proxy, with support for modern encrypted DNS protocols \
                    such as DNSCrypt v2 and DNS-over-HTTP/2." \
                    url="https://github.com/jedisct1/dnscrypt-proxy"
 
 RUN apk update && \
     apk add --no-cache \ 
-    dnscrypt-proxy=2.1.1-r0 \
+    dnscrypt-proxy=2.1.1-r3 \
     drill=1.7.2_git20210911-r1 && \
     rm -rf /var/cache/apk/* && rm -rf /tmp/*
 
