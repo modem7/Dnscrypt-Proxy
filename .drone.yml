@@ -86,6 +86,23 @@ steps:
         - latest
         - 2.1.1
 
+# Doesn't work currently - https://github.com/christian-korneck/docker-pushrm/blob/master/README.md#limitations
+# https://github.com/docker/roadmap/issues/115
+
+  # - name: pushrm-dockerhub
+    # image: chko/docker-pushrm
+    # environment:
+      # DOCKER_USER:
+        # from_secret: docker_username
+      # DOCKER_PASS:
+        # from_secret: docker_test
+      # PUSHRM_FILE: README.md
+      # PUSHRM_SHORT: a dns server container using several uk/european doh resolution services via dnscrypt proxy
+      # PUSHRM_TARGET: modem7/dnscrypt-proxy
+    # when:
+      # status:
+        # - success
+
   - name: slack
     image: themaz/drone-slack
     settings:
@@ -93,23 +110,6 @@ steps:
         from_secret: slack_hook
     when:
       status: [ success, failure ]
-
-# Doesn't work currently - https://github.com/christian-korneck/docker-pushrm/blob/master/README.md#limitations
-# https://github.com/docker/roadmap/issues/115
-
-# - name: pushrm-dockerhub
-  # image: chko/docker-pushrm:1
-  # environment:
-    # DOCKER_PASS:
-      # from_secret: docker_password
-    # DOCKER_USER:
-      # from_secret: docker_username
-    # PUSHRM_FILE: README.md
-    # PUSHRM_SHORT: A DNS server container using several UK/European DoH resolution services via DNSCrypt Proxy
-    # PUSHRM_TARGET: modem7/dnscrypt-proxy
-  # when:
-    # status:
-    # - success
 
 trigger:
   event:
