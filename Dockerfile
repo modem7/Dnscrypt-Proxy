@@ -1,6 +1,6 @@
 FROM alpine:edge
 
-ENV LOCAL_PORT=53
+ENV LOCAL_PORT=5353
 
 LABEL maintainer="modem7"
 LABEL description="A flexible DNS proxy, with support for modern encrypted DNS protocols \
