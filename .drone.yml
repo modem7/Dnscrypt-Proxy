@@ -33,7 +33,7 @@ steps:
     image: dnscrypt:test
     pull: if-not-exists
     commands:
-      - drill -p 53 -D one.one.one.one || exit 1
+      - drill -p 5353 -D one.one.one.one || exit 1
 
 volumes: 
   - name: dockersock
