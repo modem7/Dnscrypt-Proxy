@@ -70,6 +70,7 @@ steps:
       # dry_run: true  # disable when not testing
       purge: true
       compress: true
+      build_args: BUILDKIT_INLINE_CACHE=1
       use_cache: true
       cache_from: "modem7/dnscrypt-proxy:latest"
       platforms:  # if it doesn't work run docker run --privileged --rm tonistiigi/binfmt --install all
@@ -88,19 +89,19 @@ steps:
 # Doesn't work currently - https://github.com/christian-korneck/docker-pushrm/blob/master/README.md#limitations
 # https://github.com/docker/roadmap/issues/115
 
-  # - name: pushrm-dockerhub
-    # image: chko/docker-pushrm
-    # environment:
-      # DOCKER_USER:
-        # from_secret: docker_username
-      # DOCKER_PASS:
-        # from_secret: docker_test
-      # PUSHRM_FILE: README.md
-      # PUSHRM_SHORT: a dns server container using several uk/european doh resolution services via dnscrypt proxy
-      # PUSHRM_TARGET: modem7/dnscrypt-proxy
-    # when:
-      # status:
-        # - success
+  - name: pushrm-dockerhub
+    image: chko/docker-pushrm
+    environment:
+      DOCKER_USER:
+        from_secret: docker_username
+      DOCKER_PASS:
+        from_secret: docker_password
+      PUSHRM_FILE: README.md
+      PUSHRM_SHORT: A DNS server container using several uk/european DoH resolution services via dnscrypt proxy
+      PUSHRM_TARGET: modem7/dnscrypt-proxy
+    when:
+      status:
+        - success
 
   - name: slack
     image: themaz/drone-slack

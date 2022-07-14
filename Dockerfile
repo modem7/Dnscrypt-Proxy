@@ -1,3 +1,5 @@
+# syntax = docker/dockerfile:1
+
 FROM alpine:edge
 
 ENV LOCAL_PORT=53
