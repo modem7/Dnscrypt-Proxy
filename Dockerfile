@@ -1,4 +1,4 @@
-# syntax = docker/dockerfile:1
+# syntax = docker/dockerfile:latest
 
 FROM alpine:edge
 
@@ -11,7 +11,7 @@ LABEL description="A flexible DNS proxy, with support for modern encrypted DNS p
 
 RUN apk update && \
     apk add --no-cache \ 
-    dnscrypt-proxy=2.1.1-r5 \
+    dnscrypt-proxy=2.1.1-r6 \
     drill=1.8.1-r0 && \
     rm -rf /var/cache/apk/* && rm -rf /tmp/*
 
