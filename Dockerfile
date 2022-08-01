@@ -9,8 +9,7 @@ LABEL description="A flexible DNS proxy, with support for modern encrypted DNS p
                    such as DNSCrypt v2 and DNS-over-HTTP/2." \
                    url="https://github.com/jedisct1/dnscrypt-proxy"
 
-RUN apk update && \
-    apk add --no-cache \ 
+RUN apk add --update --no-cache \
     dnscrypt-proxy=2.1.1-r6 \
     drill=1.8.1-r0 && \
     rm -rf /var/cache/apk/* && rm -rf /tmp/*
@@ -18,7 +17,6 @@ RUN apk update && \
 EXPOSE $LOCAL_PORT/udp
 
 COPY dnscrypt-proxy.toml /etc/dnscrypt-proxy/dnscrypt-proxy.toml
-COPY example-dnscrypt-proxy.toml /etc/dnscrypt-proxy/example-dnscrypt-proxy.toml
 
 USER dnscrypt
 
