@@ -10,8 +10,8 @@ LABEL description="A flexible DNS proxy, with support for modern encrypted DNS p
                    url="https://github.com/jedisct1/dnscrypt-proxy"
 
 RUN apk add --update --no-cache \
-    dnscrypt-proxy=2.1.4-r0 \
-    drill=1.8.3-r0 && \
+    dnscrypt-proxy=2.1.4-r1 \
+    drill=1.8.3-r1 && \
     rm -rf /var/cache/apk/* && rm -rf /tmp/*
 
 EXPOSE $LOCAL_PORT/udp
