@@ -37,7 +37,6 @@
 ## To listen to all IPv4+IPv6 addresses, use `listen_addresses = ['[::]:53']`
 
 listen_addresses = ['0.0.0.0:53']
-#listen_addresses = ['0.0.0.0:5353']
 
 ## Maximum number of simultaneous client connections to accept
 
@@ -150,12 +149,12 @@ lb_estimator = true
 
 ## Log level (0-6, default: 2 - 0 is very verbose, 6 only contains fatal errors)
 
-log_level = 2
+log_level = %%LOG_LEVEL%%
 
 
 ## log file for the application
 
-log_file = '/dev/stdout'
+#log_file = '/dev/stdout'
 
 
 ## Use the system logger (syslog on Unix, Event Log on Windows)

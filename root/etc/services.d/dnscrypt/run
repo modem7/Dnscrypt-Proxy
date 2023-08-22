@@ -1,0 +1,16 @@
+#!/usr/bin/with-contenv bash
+
+# Variables
+export \
+    LOG_LEVEL="${LOG_LEVEL:-"2"}" \
+
+echo "
+-----------------------------------
+Log Level:   $LOG_LEVEL
+Time Zone:   $TZ
+-----------------------------------
+"
+
+sed -i "s/%%LOG_LEVEL%%/${LOG_LEVEL}/" /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+
+exec dnscrypt-proxy -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml

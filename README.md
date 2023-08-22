@@ -10,19 +10,11 @@ A DNS server container which utilises several anonymised, non-logging, non-filte
 In this config, tcp and udp port 53 must be free on the host:
 
 ```bash
-docker run -dt --dns 127.0.0.1 -p 53:53/udp -p 53:53/tcp --name dnscrypt-proxy --restart unless-stopped modem7/dnscrypt-proxy
-```
-
-If you need it to listen on an alternate port:
-
-```bash
-docker run -dt --dns 127.0.0.1 -p 5353:53/udp -p 5353:53/tcp --name dnscrypt-proxy --restart unless-stopped modem7/dnscrypt-proxy
+docker run -dt --dns 127.0.0.1 -p 53:53/udp 53:53/tcp --name dnscrypt-proxy --restart unless-stopped modem7/dnscrypt-proxy
 ```
 
 ## Docker-compose
 ```bash
-version: "2.4"
-
 services:
 
   #DNSCrypt-Proxy - Non-caching, Non-logging, DNSSEC DNS Resolver
@@ -41,6 +33,14 @@ services:
     mem_limit: 100m
     mem_reservation: 30m
 ```
+
+# Environment Variables
+| Variable | Description | Default |
+| :----: | --- | --- |
+| LOG_LEVEL | Log level (0-6, default: 2 - 0 is very verbose, 6 only contains fatal errors) | 2 |
+| TZ | Timezone | Europe/London |
+
+
 ---------------
 
 ## Modifications
