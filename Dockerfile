@@ -48,7 +48,7 @@ RUN <<EOF
         tzdata
         
     apk add --no-cache -uU \
-        dnscrypt-proxy=2.1.5-r0 \
+        dnscrypt-proxy=2.1.5-r1 \
         drill=1.8.3-r2
     rm -rf /tmp/* \
            /var/cache/apk/*
