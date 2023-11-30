@@ -5,6 +5,8 @@
 [![Build Status](https://drone.modem7.com/api/badges/modem7/Dnscrypt-Proxy/status.svg)](https://drone.modem7.com/modem7/Dnscrypt-Proxy) 
 [![GitHub last commit](https://img.shields.io/github/last-commit/modem7/Dnscrypt-Proxy)](https://github.com/modem7/Dnscrypt-Proxy)
 
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/modem7)
+
 A DNS server container which utilises several anonymised, non-logging, non-filtering DNS over HTTPS servers by utilizing DNSCrypt Proxy (https://github.com/jedisct1/dnscrypt-proxy, https://dnscrypt.info/).
 
 In this config, tcp and udp port 53 must be free on the host:
