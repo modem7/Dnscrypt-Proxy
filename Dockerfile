@@ -16,7 +16,7 @@ ENV S6_OVERLAY_ARCH=aarch64
 
 FROM base-${TARGETARCH}${TARGETVARIANT}
 
-ARG S6_OVERLAY_VERSION=3.1.5.0
+ARG S6_OVERLAY_VERSION=3.2.0.2
 
 # Add S6 Overlay
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_OVERLAY_ARCH}.tar.xz /tmp/s6-overlay.tar.xz
@@ -48,7 +48,7 @@ RUN <<EOF
         tzdata
         
     apk add --no-cache -uU \
-        dnscrypt-proxy=2.1.5-r2 \
+        dnscrypt-proxy=2.1.7-r0 \
         drill
     rm -rf /tmp/* \
            /var/cache/apk/*
