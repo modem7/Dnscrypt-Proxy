@@ -36,7 +36,7 @@ steps:
         from_secret: docker_password
       tags:
         - latest
-        - 2.1.7
+        - 2.1.13
 
 # Doesn't work currently - https://github.com/christian-korneck/docker-pushrm/blob/master/README.md#limitations
 # https://github.com/docker/roadmap/issues/115
