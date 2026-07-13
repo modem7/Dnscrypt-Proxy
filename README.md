@@ -2,7 +2,7 @@
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/modem7/dnscrypt-proxy)](https://hub.docker.com/r/modem7/dnscrypt-proxy) 
 ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/modem7/dnscrypt-proxy/latest) 
-[![Build Status](https://drone.modem7.com/api/badges/modem7/Dnscrypt-Proxy/status.svg)](https://drone.modem7.com/modem7/Dnscrypt-Proxy) 
+[![status-badge](https://woodpecker.modem7.com/api/badges/REPO_ID/status.svg?events=push%2Cmanual)](https://woodpecker.modem7.com/repos/REPO_ID) 
 [![GitHub last commit](https://img.shields.io/github/last-commit/modem7/Dnscrypt-Proxy)](https://github.com/modem7/Dnscrypt-Proxy)
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/modem7)

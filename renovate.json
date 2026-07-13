@@ -9,5 +9,37 @@
   "labels": [
     "dependencies"
   ],
-  "timezone": "Europe/London"
+  "timezone": "Europe/London",
+  "packageRules": [
+    {
+      "description": "Automerge low-risk CI plumbing updates (GitHub Actions, Woodpecker step images) - Dockerfile base image and dnscrypt-proxy version stay manual",
+      "matchManagers": ["github-actions", "woodpecker"],
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Track the S6 Overlay version pinned in the Dockerfile ARG",
+      "managerFilePatterns": ["/^Dockerfile$/"],
+      "matchStrings": [
+        "ARG S6_OVERLAY_VERSION=(?<currentValue>.+?)\\s"
+      ],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "just-containers/s6-overlay",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Track the dnscrypt-proxy Alpine edge package version pinned in the Dockerfile",
+      "managerFilePatterns": ["/^Dockerfile$/"],
+      "matchStrings": [
+        "dnscrypt-proxy=(?<currentValue>\\S+?)\\s"
+      ],
+      "datasourceTemplate": "repology",
+      "packageNameTemplate": "alpine_edge/dnscrypt-proxy",
+      "versioningTemplate": "loose"
+    }
+  ]
 }
