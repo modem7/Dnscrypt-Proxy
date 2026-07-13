@@ -1,3 +1,15 @@
 #!/usr/bin/with-contenv bash
 
-sed -i "s/%%LOG_LEVEL%%/${LOG_LEVEL:-2}/" /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+sed -i \
+    -e "s/%%LOG_LEVEL%%/${LOG_LEVEL:-2}/" \
+    -e "s/%%PORT%%/${PORT:-53}/" \
+    -e "s/%%MAX_CLIENTS%%/${MAX_CLIENTS:-1000}/" \
+    -e "s/%%CACHE_SIZE%%/${CACHE_SIZE:-8192}/" \
+    -e "s/%%IP_ENCRYPTION_ALGORITHM%%/${IP_ENCRYPTION_ALGORITHM:-none}/" \
+    -e "s/%%IP_ENCRYPTION_KEY%%/${IP_ENCRYPTION_KEY:-}/" \
+    -e "s/%%MONITORING_UI_ENABLED%%/${MONITORING_UI_ENABLED:-false}/" \
+    -e "s#%%MONITORING_UI_LISTEN_ADDRESS%%#${MONITORING_UI_LISTEN_ADDRESS:-127.0.0.1:8080}#" \
+    -e "s/%%MONITORING_UI_USERNAME%%/${MONITORING_UI_USERNAME:-admin}/" \
+    -e "s/%%MONITORING_UI_PASSWORD%%/${MONITORING_UI_PASSWORD:-changeme}/" \
+    -e "s/%%MONITORING_UI_PROMETHEUS_ENABLED%%/${MONITORING_UI_PROMETHEUS_ENABLED:-false}/" \
+    /etc/dnscrypt-proxy/dnscrypt-proxy.toml
