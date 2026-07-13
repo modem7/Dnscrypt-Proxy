@@ -35,7 +35,7 @@ ENV LANG='en_US.UTF-8' \
     TZ="Europe/London"
 
 RUN <<EOF
-    set -x
+    set -eux
     apk upgrade --update --no-cache
     tar -C / -Jxpf /tmp/s6-overlay.tar.xz
     tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz
@@ -48,7 +48,7 @@ RUN <<EOF
         tzdata
         
     apk add --no-cache -uU \
-        dnscrypt-proxy=2.1.13-r0 \
+        dnscrypt-proxy=2.1.16-r0 \
         drill
     rm -rf /tmp/* \
            /var/cache/apk/*
