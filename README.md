@@ -68,7 +68,9 @@ docker run -d \
 | `LOG_LEVEL` | Log verbosity, 0-6 (0 is very verbose, 6 only fatal errors) | `2` |
 | `PORT` | Port dnscrypt-proxy listens on inside the container, both TCP and UDP | `53` |
 | `MAX_CLIENTS` | Maximum simultaneous client connections | `1000` |
+| `CACHE_ENABLED` | Enable dnscrypt-proxy's own DNS cache (`true`/`false`) - see [Using this as an upstream](#using-this-as-an-upstream-pi-hole-etc) if something downstream also caches | `true` |
 | `CACHE_SIZE` | DNS cache size, in entries | `8192` |
+| `CACHE_MIN_TTL` | Minimum TTL (seconds) enforced on cached entries, even if the real upstream TTL is lower | `2400` |
 | `MONITORING_UI_ENABLED` | Enable the built-in monitoring web UI (`true`/`false`) - see below | `false` |
 | `MONITORING_UI_LISTEN_ADDRESS` | Listen address for the monitoring UI | `127.0.0.1:8080` |
 | `MONITORING_UI_USERNAME` | Monitoring UI basic auth username | `admin` |
@@ -79,7 +81,7 @@ docker run -d \
 
 `PORT` changes what dnscrypt-proxy listens on *inside* the container - map it to whatever host port you want, e.g. `-e PORT=5353 -p 5353:5353/tcp -p 5353:5353/udp`.
 
-`MONITORING_UI_ENABLED` and `MONITORING_UI_PROMETHEUS_ENABLED` must be the literal strings `true` or `false` - anything else produces an invalid config.
+`MONITORING_UI_ENABLED`, `MONITORING_UI_PROMETHEUS_ENABLED`, and `CACHE_ENABLED` must be the literal strings `true` or `false` - anything else produces an invalid config.
 
 ---
 
@@ -98,6 +100,24 @@ services:
 ```
 
 The UI binds to loopback by default, so it isn't reachable unless you also publish its port. If you do publish it, set `MONITORING_UI_PASSWORD` to something other than the default first.
+
+---
+
+## Using this as an upstream (Pi-hole, etc.)
+
+This image works well as the sole upstream resolver for something that does its own blocking/local DNS - Pi-hole, AdGuard Home, dnsmasq, unbound, and so on. All the hardening (DNSCrypt-only, DNSSEC, Anonymized DNS relays) applies to the leg between this container and the internet, which is exactly the leg those tools don't cover themselves. Point Pi-hole's **Upstream DNS Server** at this container's IP (and port, if you changed `PORT`).
+
+A few things worth changing from the defaults in that setup:
+
+- **Double caching.** Both this container and Pi-hole (or similar) cache answers, which isn't wrong so much as redundant, and the two caches interact in a way that's easy to miss: `CACHE_MIN_TTL` (default `2400`, i.e. 40 minutes) is a *floor* enforced here regardless of what the upstream server actually returned. Pi-hole's own cache will re-ask this container as its TTL expires, but if this container is still serving its own longer-lived cached answer underneath, a genuine upstream DNS change (a CDN failover, a record you just updated) can take up to 40 minutes to actually reach your LAN even though Pi-hole "looks" like it's honouring a shorter TTL. Two reasonable options:
+  - Turn caching off here entirely and let Pi-hole be the only cache: `CACHE_ENABLED=false`.
+  - Keep the cache but lower the floor to something that suits you, e.g. `CACHE_MIN_TTL=60`.
+
+  Leaving both defaults as-is is still safe - it just means DNS changes propagate more slowly than either cache alone would suggest.
+
+- **Per-device visibility.** If you enable the [monitoring UI](#monitoring-ui) or query logging on this container, every query will show Pi-hole's own address as "the client," not the original LAN device - that view already exists in Pi-hole's own dashboard, so there's nothing to fix here, just don't expect per-device stats from this container in that setup.
+
+- **`block_unqualified` / `block_undelegated`** (in `dnscrypt-proxy.toml`, not env-configurable) make this container immediately refuse single-label hostnames and queries for non-delegated/private zones rather than forwarding them upstream. Pi-hole answers anything it has a local DNS record for itself and only forwards on a miss, so this mostly only affects truly-unknown unqualified names reaching this container - generally what you want, since there's no reason to leak those to the public DNS/relay network.
 
 ---
 
