@@ -1,0 +1,151 @@
+name: Test image
+
+on:
+  push:
+    paths:
+      - Dockerfile
+      - dnscrypt-proxy.toml
+      - root/**
+      - .github/workflows/test.yml
+  pull_request:
+    paths:
+      - Dockerfile
+      - dnscrypt-proxy.toml
+      - root/**
+      - .github/workflows/test.yml
+  workflow_dispatch:
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # ---------------------------------------------------------------------
+  # Fast, cheap checks first - fail quickly on the easy stuff before
+  # spending time on the Docker build.
+  # ---------------------------------------------------------------------
+
+  toml-lint:
+    name: Validate dnscrypt-proxy.toml syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Parse TOML
+        run: |
+          pip install --quiet --break-system-packages toml
+          # %%LOG_LEVEL%% is a placeholder substituted by the init-dnscrypt-config
+          # oneshot at container start (see root/etc/s6-overlay/scripts/) - it isn't
+          # valid TOML on its own, so stand in the same value s6 would.
+          sed 's/%%LOG_LEVEL%%/2/' dnscrypt-proxy.toml > /tmp/rendered.toml
+          python3 -c "import toml; toml.load(open('/tmp/rendered.toml'))"
+
+  hadolint:
+    name: Hadolint (Dockerfile)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jbergstroem/hadolint-gh-action@v1
+        with:
+          dockerfile: Dockerfile
+
+  # ---------------------------------------------------------------------
+  # Build + behavioral smoke test - most expensive, most likely to catch
+  # packaging issues (broken apk pins, bad COPY paths, s6 misconfiguration)
+  # that the checks above can't see.
+  # ---------------------------------------------------------------------
+
+  test:
+    name: Docker build + smoke test
+    runs-on: ubuntu-latest
+    needs: [toml-lint, hadolint]
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./Dockerfile
+          load: true
+          tags: dnscrypt-proxy:test
+          cache-from: type=gha,scope=test
+          cache-to: type=gha,mode=max,scope=test
+
+      - name: Save image for vulnerability scanning
+        run: docker save -o /tmp/image.tar dnscrypt-proxy:test
+      - name: Scan image for known vulnerabilities (Trivy)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          input: /tmp/image.tar
+          format: sarif
+          output: trivy-results.sarif
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          # Only fail on vulnerabilities that actually have a fix available -
+          # failing CI over a disclosed-but-unpatched upstream CVE would be
+          # unactionable, not protective.
+          ignore-unfixed: true
+      - name: Upload scan results to the Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-results.sarif
+
+      - name: Start container
+        run: |
+          docker run -d --name dnscrypt -e LOG_LEVEL=0 \
+            -p 127.0.0.1:5353:53/udp -p 127.0.0.1:5353:53/tcp \
+            dnscrypt-proxy:test
+
+      - name: Check container runs as non-root
+        run: |
+          docker exec dnscrypt whoami | grep -qv root
+          [ "$(docker exec dnscrypt id -u)" != "0" ]
+
+      - name: Check no world-writable files under /etc/dnscrypt-proxy
+        run: |
+          count=$(docker exec dnscrypt find /etc/dnscrypt-proxy -type f -perm /o+w | wc -l)
+          [ "$count" -eq 0 ]
+
+      - name: Check LOG_LEVEL env var is templated into the config by the init oneshot
+        run: docker exec dnscrypt grep -q '^log_level = 0$' /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+
+      # Slower than a pure syntax check - dnscrypt-proxy -check fetches the
+      # configured resolver/relay sources over the network as part of
+      # validating the config, same as a real startup. Kept as its own step
+      # so a config regression is distinguishable from network flakiness in
+      # the healthcheck-wait step below.
+      - name: Validate config with dnscrypt-proxy -check
+        run: |
+          timeout 120 docker exec dnscrypt dnscrypt-proxy \
+            -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml -check
+
+      - name: Wait for container to become healthy
+        run: |
+          for i in $(seq 1 30); do
+            status=$(docker inspect -f '{{.State.Health.Status}}' dnscrypt 2>/dev/null || echo starting)
+            [ "$status" = "healthy" ] && exit 0
+            sleep 2
+          done
+          docker logs dnscrypt
+          exit 1
+
+      - name: Set up dig
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq dnsutils
+
+      - name: Resolve a domain over UDP through the proxy
+        run: dig @127.0.0.1 -p 5353 one.one.one.one +short +time=5 +tries=2 | grep -qE '^[0-9]+\.'
+
+      - name: Resolve a domain over TCP through the proxy
+        run: dig @127.0.0.1 -p 5353 +tcp one.one.one.one +short +time=5 +tries=2 | grep -qE '^[0-9]+\.'
+
+      - name: Stop container
+        if: always()
+        run: docker rm -f dnscrypt || true
