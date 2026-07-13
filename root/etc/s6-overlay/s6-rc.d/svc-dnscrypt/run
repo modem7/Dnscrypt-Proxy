@@ -1,20 +1,12 @@
 #!/usr/bin/with-contenv bash
 
-# Variables
-export \
-    LOG_LEVEL="${LOG_LEVEL:-"2"}" \
-
 echo "
 -----------------------------------
-Log Level:   $LOG_LEVEL
+Log Level:   ${LOG_LEVEL:-2}
 Time Zone:   $TZ
 -----------------------------------
 "
 
-sed -i "s/%%LOG_LEVEL%%/${LOG_LEVEL}/" /etc/dnscrypt-proxy/dnscrypt-proxy.toml
-
 exec \
-    s6-notifyoncheck -d -n 300 -w 1000 -c "drill -p $PORT one.one.one.one @127.0.0.1 || exit 1" \
+    s6-notifyoncheck -d -n 300 -w 1000 -c "/etc/dnscrypt-healthcheck.sh" \
         dnscrypt-proxy -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml
-
-#exec dnscrypt-proxy -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml

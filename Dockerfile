@@ -63,6 +63,6 @@ EXPOSE $PORT/tcp
 EXPOSE $PORT/udp
 
 HEALTHCHECK --interval=20s --timeout=20s --retries=3 --start-period=10s \
-    CMD drill -p $PORT one.one.one.one @127.0.0.1 || exit 1
+    CMD /etc/dnscrypt-healthcheck.sh || exit 1
 
 ENTRYPOINT [ "/init" ]

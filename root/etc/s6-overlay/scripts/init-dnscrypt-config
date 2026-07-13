@@ -1,0 +1,3 @@
+#!/usr/bin/with-contenv bash
+
+sed -i "s/%%LOG_LEVEL%%/${LOG_LEVEL:-2}/" /etc/dnscrypt-proxy/dnscrypt-proxy.toml
