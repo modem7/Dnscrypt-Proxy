@@ -34,10 +34,23 @@ jobs:
       - name: Parse TOML
         run: |
           pip install --quiet --break-system-packages toml
-          # %%LOG_LEVEL%% is a placeholder substituted by the init-dnscrypt-config
-          # oneshot at container start (see root/etc/s6-overlay/scripts/) - it isn't
-          # valid TOML on its own, so stand in the same value s6 would.
-          sed 's/%%LOG_LEVEL%%/2/' dnscrypt-proxy.toml > /tmp/rendered.toml
+          # %%PLACEHOLDER%% tokens are substituted by the init-dnscrypt-config
+          # oneshot at container start (see root/etc/s6-overlay/scripts/) - the
+          # raw file isn't valid TOML until they're filled in, so mirror the
+          # same defaults that script uses.
+          sed \
+              -e 's/%%LOG_LEVEL%%/2/' \
+              -e 's/%%PORT%%/53/' \
+              -e 's/%%MAX_CLIENTS%%/1000/' \
+              -e 's/%%CACHE_SIZE%%/8192/' \
+              -e 's/%%IP_ENCRYPTION_ALGORITHM%%/none/' \
+              -e 's/%%IP_ENCRYPTION_KEY%%//' \
+              -e 's/%%MONITORING_UI_ENABLED%%/false/' \
+              -e 's#%%MONITORING_UI_LISTEN_ADDRESS%%#127.0.0.1:8080#' \
+              -e 's/%%MONITORING_UI_USERNAME%%/admin/' \
+              -e 's/%%MONITORING_UI_PASSWORD%%/changeme/' \
+              -e 's/%%MONITORING_UI_PROMETHEUS_ENABLED%%/false/' \
+              dnscrypt-proxy.toml > /tmp/rendered.toml
           python3 -c "import toml; toml.load(open('/tmp/rendered.toml'))"
 
   hadolint:
