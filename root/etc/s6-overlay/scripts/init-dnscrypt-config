@@ -5,6 +5,8 @@ sed -i \
     -e "s/%%PORT%%/${PORT:-53}/" \
     -e "s/%%MAX_CLIENTS%%/${MAX_CLIENTS:-1000}/" \
     -e "s/%%CACHE_SIZE%%/${CACHE_SIZE:-8192}/" \
+    -e "s/%%CACHE_ENABLED%%/${CACHE_ENABLED:-true}/" \
+    -e "s/%%CACHE_MIN_TTL%%/${CACHE_MIN_TTL:-2400}/" \
     -e "s/%%IP_ENCRYPTION_ALGORITHM%%/${IP_ENCRYPTION_ALGORITHM:-none}/" \
     -e "s/%%IP_ENCRYPTION_KEY%%/${IP_ENCRYPTION_KEY:-}/" \
     -e "s/%%MONITORING_UI_ENABLED%%/${MONITORING_UI_ENABLED:-false}/" \

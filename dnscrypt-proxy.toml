@@ -472,8 +472,14 @@ reject_ttl = 10
 ## turning it on is a straightforward latency and upstream-load win with no
 ## downside: entries are still bound by the TTLs below, so nothing is served
 ## past its actual expiry.
+##
+## If this container sits behind something that already caches (Pi-hole,
+## another dnsmasq/unbound instance, etc.), you may prefer to disable the
+## cache here via CACHE_ENABLED=false rather than run two caches - see the
+## README's "Using this as an upstream" section.
+## Templated from the CACHE_ENABLED environment variable at container start.
 
-cache = true
+cache = %%CACHE_ENABLED%%
 
 
 ## Cache size
@@ -483,8 +489,15 @@ cache_size = %%CACHE_SIZE%%
 
 
 ## Minimum TTL for cached entries
+##
+## Enforced as a floor even if the real upstream TTL is lower - if something
+## downstream of this container also caches, the effective staleness is
+## whichever cache holds an entry longer, not just this one. Lower this (or
+## disable the cache above) if you need faster propagation of upstream DNS
+## changes than this allows.
+## Templated from the CACHE_MIN_TTL environment variable at container start.
 
-cache_min_ttl = 2400
+cache_min_ttl = %%CACHE_MIN_TTL%%
 
 
 ## Maximum TTL for cached entries

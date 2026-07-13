@@ -43,6 +43,8 @@ jobs:
               -e 's/%%PORT%%/53/' \
               -e 's/%%MAX_CLIENTS%%/1000/' \
               -e 's/%%CACHE_SIZE%%/8192/' \
+              -e 's/%%CACHE_ENABLED%%/true/' \
+              -e 's/%%CACHE_MIN_TTL%%/2400/' \
               -e 's/%%IP_ENCRYPTION_ALGORITHM%%/none/' \
               -e 's/%%IP_ENCRYPTION_KEY%%//' \
               -e 's/%%MONITORING_UI_ENABLED%%/false/' \
