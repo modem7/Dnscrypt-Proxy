@@ -22,14 +22,17 @@ steps:
     privileged: true
     depends_on: [lint-dockerfile]
     settings:
-      repo: ${CI_REPO}
+      # Not ${CI_REPO}: it mirrors the GitHub repo's exact casing
+      # (modem7/Dnscrypt-Proxy), but Docker Hub repository names must be
+      # lowercase - this is the actual published image name.
+      repo: modem7/dnscrypt-proxy
       dockerfile: Dockerfile
       purge: true
       compress: true
       build_args:
         BUILDKIT_INLINE_CACHE: "1"
       cache_from:
-        - type=registry\,ref=${CI_REPO}:latest
+        - type=registry\,ref=modem7/dnscrypt-proxy:latest
       platforms: linux/amd64,linux/arm64/v8
       username:
         from_secret: docker_username
@@ -48,7 +51,7 @@ steps:
         from_secret: docker_password
       PUSHRM_FILE: README.md
       PUSHRM_SHORT: A DNS server container using several uk/european DoH resolution services via dnscrypt proxy
-      PUSHRM_TARGET: ${CI_REPO}
+      PUSHRM_TARGET: modem7/dnscrypt-proxy
     when:
       - status: [success]
 
