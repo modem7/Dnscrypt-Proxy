@@ -18,7 +18,8 @@ By default it routes every query through [Anonymized DNS](https://github.com/DNS
 
 | Tag | Description |
 | :---: | --- |
-| `latest` | Latest dnscrypt-proxy build |
+| `latest` | Latest build |
+| `X.Y.Z` (e.g. `2.1.16`) | Matches the dnscrypt-proxy version pinned in the [Dockerfile](Dockerfile) at build time - pin to this instead of `latest` if you want to control upgrades explicitly |
 
 ---
 
