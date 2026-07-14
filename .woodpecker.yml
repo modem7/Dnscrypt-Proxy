@@ -1,14 +1,20 @@
 when:
-  - event: [push, manual]
+  - event: push
     branch: master
     path:
       # Scoped to what actually gets COPYed into the image in the Dockerfile —
       # docs/CI-only changes elsewhere shouldn't trigger a rebuild/republish.
+      # (path conditions only apply to push/pull_request events anyway, so
+      # this has no effect on the manual trigger below.)
       include:
         - Dockerfile
         - dnscrypt-proxy.toml
         - root/**
         - .woodpecker.yml
+  # No branch restriction here (unlike push above) - lets you manually
+  # trigger a build against any branch, e.g. to verify a fix on its PR
+  # branch before merging, not just against master.
+  - event: manual
 
 steps:
   - name: lint-dockerfile
