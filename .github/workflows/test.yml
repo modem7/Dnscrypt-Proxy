@@ -2,6 +2,8 @@ name: Test image
 
 on:
   push:
+    branches:
+      - master
     paths:
       - Dockerfile
       - dnscrypt-proxy.toml
