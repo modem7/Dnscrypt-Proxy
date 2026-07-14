@@ -32,3 +32,15 @@ sed -i \
     -e "s/%%MONITORING_UI_PASSWORD%%/${monitoring_ui_password}/" \
     -e "s/%%MONITORING_UI_PROMETHEUS_ENABLED%%/${MONITORING_UI_PROMETHEUS_ENABLED:-false}/" \
     /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+
+# Belt and braces: if a %%PLACEHOLDER%% was added to the toml without a
+# matching sed rule above, or this script somehow ran against the wrong
+# file, dnscrypt-proxy would otherwise fail with a cryptic TOML parse error
+# ("expected value but found '%' instead") with no hint as to why. Fail
+# loudly here instead, with the actual unrendered lines, before the daemon
+# ever gets a chance to start.
+if grep -q '%%[A-Z_]\+%%' /etc/dnscrypt-proxy/dnscrypt-proxy.toml; then
+    echo "[init-dnscrypt-config] FATAL: unrendered %%PLACEHOLDER%% tokens remain in dnscrypt-proxy.toml:" >&2
+    grep -n '%%[A-Z_]\+%%' /etc/dnscrypt-proxy/dnscrypt-proxy.toml >&2
+    exit 1
+fi
