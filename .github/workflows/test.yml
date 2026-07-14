@@ -8,12 +8,14 @@ on:
       - Dockerfile
       - dnscrypt-proxy.toml
       - root/**
+      - .woodpecker.yml
       - .github/workflows/test.yml
   pull_request:
     paths:
       - Dockerfile
       - dnscrypt-proxy.toml
       - root/**
+      - .woodpecker.yml
       - .github/workflows/test.yml
   workflow_dispatch:
 
@@ -65,6 +67,28 @@ jobs:
       - uses: jbergstroem/hadolint-gh-action@v1
         with:
           dockerfile: Dockerfile
+
+  woodpecker-lint:
+    name: Validate .woodpecker.yml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Parse YAML
+        run: python3 -c "import yaml; yaml.safe_load(open('.woodpecker.yml'))"
+      # The compute-tags step in .woodpecker.yml extracts the dnscrypt-proxy
+      # version from this exact pattern to tag Docker Hub releases - if the
+      # Dockerfile's pin format ever changes shape, that step fails silently
+      # in a way nothing here would otherwise catch (test.yml doesn't run the
+      # actual Woodpecker pipeline). Catch it here instead of finding out from
+      # a broken live release build.
+      - name: Confirm the version-tag extraction regex still matches the Dockerfile
+        run: |
+          version=$(grep -oE "dnscrypt-proxy=[0-9]+\.[0-9]+\.[0-9]+" Dockerfile | cut -d= -f2)
+          if [ -z "$version" ]; then
+            echo "::error::compute-tags' regex in .woodpecker.yml would fail to extract a version from the current Dockerfile"
+            exit 1
+          fi
+          echo "extracted version: $version"
 
   # ---------------------------------------------------------------------
   # Build + behavioral smoke test - most expensive, most likely to catch
@@ -134,6 +158,16 @@ jobs:
       - name: Check LOG_LEVEL env var is templated into the config by the init oneshot
         run: docker exec dnscrypt grep -q '^log_level = 0$' /etc/dnscrypt-proxy/dnscrypt-proxy.toml
 
+      # Broader than the LOG_LEVEL spot-check above: confirms every single
+      # %%PLACEHOLDER%% in the toml (not just the one we happened to override)
+      # got substituted by the real init-dnscrypt-config script, not a copy of
+      # its logic. Catches a new placeholder being added without a matching
+      # sed rule, or a rule silently breaking.
+      - name: Check no %%PLACEHOLDER%% tokens remain in the rendered config
+        run: |
+          count=$(docker exec dnscrypt grep -c '%%[A-Z_]\+%%' /etc/dnscrypt-proxy/dnscrypt-proxy.toml || true)
+          [ "${count:-0}" -eq 0 ]
+
       # The bootstrap resolvers in dnscrypt-proxy.toml (chosen for their no-log
       # policy, not for speed) are consistently slow or unreachable from GitHub
       # Actions' network - the full source-fetch fallback chain has taken up to
@@ -168,6 +202,93 @@ jobs:
 
       - name: Resolve a domain over TCP through the proxy
         run: dig @127.0.0.1 -p 5353 +tcp one.one.one.one +short +time=5 +tries=2 | grep -qE '^[0-9]+\.'
+
+      # Everything above only ever exercised each placeholder's *default*
+      # value (or, for LOG_LEVEL, one override) - nothing confirmed an
+      # explicitly-set env var actually reaches the config for the other 11
+      # placeholders. PORT in particular used to be a no-op bug (it only
+      # affected Docker/healthcheck metadata, never the real listen port) -
+      # this would have caught that. No port published: this container is
+      # only inspected via docker exec, not queried over the network.
+      - name: Start a second container with every templated setting overridden
+        run: |
+          docker run -d --name dnscrypt-custom \
+            -e PORT=5353 \
+            -e MAX_CLIENTS=42 \
+            -e CACHE_ENABLED=false \
+            -e CACHE_SIZE=1234 \
+            -e CACHE_MIN_TTL=60 \
+            -e MONITORING_UI_ENABLED=true \
+            -e MONITORING_UI_LISTEN_ADDRESS=127.0.0.1:9090 \
+            -e MONITORING_UI_USERNAME=testuser \
+            -e MONITORING_UI_PROMETHEUS_ENABLED=true \
+            -e IP_ENCRYPTION_ALGORITHM=ipcrypt-deterministic \
+            -e IP_ENCRYPTION_KEY=0123456789abcdef0123456789abcdef \
+            dnscrypt-proxy:test
+          sleep 3
+
+      - name: Check every overridden setting was templated correctly
+        run: |
+          docker exec dnscrypt-custom grep -qF "listen_addresses = ['0.0.0.0:5353']" /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+          docker exec dnscrypt-custom grep -q '^max_clients = 42$' /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+          docker exec dnscrypt-custom grep -q '^cache = false$' /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+          docker exec dnscrypt-custom grep -q '^cache_size = 1234$' /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+          docker exec dnscrypt-custom grep -q '^cache_min_ttl = 60$' /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+          docker exec dnscrypt-custom grep -q '^algorithm = "ipcrypt-deterministic"$' /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+          docker exec dnscrypt-custom grep -q '^key = "0123456789abcdef0123456789abcdef"$' /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+          docker exec dnscrypt-custom grep -q '^enabled = true$' /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+          docker exec dnscrypt-custom grep -q '^listen_address = "127.0.0.1:9090"$' /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+          docker exec dnscrypt-custom grep -q '^username = "testuser"$' /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+          docker exec dnscrypt-custom grep -q '^prometheus_enabled = true$' /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+
+      # MONITORING_UI_ENABLED=true above with no MONITORING_UI_PASSWORD set -
+      # this must trigger the random-password path (see the "don't ship a
+      # live default password" fix), not fall through to "changeme".
+      - name: Check a random monitoring UI password was generated and logged
+        run: |
+          docker logs dnscrypt-custom 2>&1 | grep -q "generated a random password"
+          # Extracted into a variable and checked by shape (length + character
+          # class) rather than a literal `password = "<hex-looking-value>"`
+          # pattern in this file, which GitGuardian's generic secret detector
+          # flags as a false positive even though it's just a test assertion.
+          value=$(docker exec dnscrypt-custom sh -c "grep '^password = ' /etc/dnscrypt-proxy/dnscrypt-proxy.toml" | cut -d'"' -f2)
+          [ "${#value}" -eq 32 ]
+          case "$value" in
+            *[!0-9a-f]*) echo "::error::generated password is not 32 lowercase hex characters: $value" >&2; exit 1 ;;
+          esac
+
+      - name: Check no %%PLACEHOLDER%% tokens remain with overridden env vars either
+        run: |
+          count=$(docker exec dnscrypt-custom grep -c '%%[A-Z_]\+%%' /etc/dnscrypt-proxy/dnscrypt-proxy.toml || true)
+          [ "${count:-0}" -eq 0 ]
+
+      # No dnscrypt-proxy -check here (unlike the first container): with a
+      # cold cache that can take several minutes, same issue as the first
+      # container before it was reordered after the healthy-wait. The grep
+      # checks above already confirm each value was templated with correct
+      # TOML syntax, and toml-lint separately confirms the overall file
+      # structure parses - not worth doubling this job's runtime to re-prove
+      # both of those together for this specific value combination.
+
+      - name: Stop second container
+        if: always()
+        run: docker rm -f dnscrypt-custom || true
+
+      # Regression test for the init script's safety net, not the daemon
+      # itself - runs last, against the already-running container, since it
+      # deliberately corrupts that container's on-disk config afterwards.
+      # Confirms an unmapped %%PLACEHOLDER%% actually fails the script with
+      # a clear error, instead of silently passing through to dnscrypt-proxy's
+      # generic TOML parse failure.
+      - name: Guard rejects an unmapped placeholder
+        run: |
+          docker exec dnscrypt sh -c '
+            sed -i "1i log_level_test = %%NOT_A_REAL_VAR%%" /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+            if bash /etc/s6-overlay/scripts/init-dnscrypt-config; then
+              echo "::error::init script exited 0 despite an unmapped placeholder - the guard is not working" >&2
+              exit 1
+            fi
+          '
 
       - name: Stop container
         if: always()
