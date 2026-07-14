@@ -7,9 +7,10 @@
 monitoring_ui_password="${MONITORING_UI_PASSWORD:-}"
 if [ -z "$monitoring_ui_password" ]; then
     if [ "${MONITORING_UI_ENABLED:-false}" = "true" ]; then
-        for _ in $(seq 1 20); do
-            monitoring_ui_password+=$(printf '%x' $((RANDOM % 16)))
-        done
+        # Bash's $RANDOM is a weak, predictable PRNG - not suitable even for
+        # a "just don't ship a fixed password" fix. Read from /dev/urandom
+        # (kernel CSPRNG) instead: 16 bytes hex-encoded to a 32-char string.
+        monitoring_ui_password=$(od -An -tx1 -N16 /dev/urandom | tr -d ' \n')
         echo "[init-dnscrypt-config] MONITORING_UI_ENABLED=true but MONITORING_UI_PASSWORD was not set - generated a random password for this container's lifetime: ${monitoring_ui_password}"
     else
         monitoring_ui_password='changeme'
