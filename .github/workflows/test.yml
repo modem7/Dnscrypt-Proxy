@@ -134,25 +134,31 @@ jobs:
       - name: Check LOG_LEVEL env var is templated into the config by the init oneshot
         run: docker exec dnscrypt grep -q '^log_level = 0$' /etc/dnscrypt-proxy/dnscrypt-proxy.toml
 
-      # Slower than a pure syntax check - dnscrypt-proxy -check fetches the
-      # configured resolver/relay sources over the network as part of
-      # validating the config, same as a real startup. Kept as its own step
-      # so a config regression is distinguishable from network flakiness in
-      # the healthcheck-wait step below.
-      - name: Validate config with dnscrypt-proxy -check
-        run: |
-          timeout 120 docker exec dnscrypt dnscrypt-proxy \
-            -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml -check
-
+      # The bootstrap resolvers in dnscrypt-proxy.toml (chosen for their no-log
+      # policy, not for speed) are consistently slow or unreachable from GitHub
+      # Actions' network - the full source-fetch fallback chain has taken up to
+      # ~4 minutes in practice. Budget generously rather than flake on that.
       - name: Wait for container to become healthy
         run: |
-          for i in $(seq 1 30); do
+          for i in $(seq 1 90); do
             status=$(docker inspect -f '{{.State.Health.Status}}' dnscrypt 2>/dev/null || echo starting)
             [ "$status" = "healthy" ] && exit 0
-            sleep 2
+            sleep 5
           done
           docker logs dnscrypt
           exit 1
+
+      # Deliberately run after the healthy-wait above, not before: the main
+      # dnscrypt-proxy process (started by `docker run` above) already fetched
+      # and cached the resolver/relay sources to reach "healthy", so this
+      # -check invocation reuses that on-disk cache instead of independently
+      # repeating the same slow network fetch. Still its own step so a real
+      # config regression is distinguishable from the container simply not
+      # reaching "healthy" in time.
+      - name: Validate config with dnscrypt-proxy -check
+        run: |
+          timeout 60 docker exec dnscrypt dnscrypt-proxy \
+            -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml -check
 
       - name: Set up dig
         run: sudo apt-get update -qq && sudo apt-get install -y -qq dnsutils
