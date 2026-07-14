@@ -23,13 +23,30 @@ steps:
       - hadolint --version
       - hadolint Dockerfile
 
+  # Writes a .tags file (one tag per line) for build-and-push to pick up via
+  # tags_file below - the plugin has no "release on latest + parsed version"
+  # feature of its own, but does read an arbitrary file of newline-separated
+  # tags at build time. Same branch/secrets scoping as build-and-push, since
+  # it exists solely to feed that step.
+  - name: compute-tags
+    image: alpine:edge
+    depends_on: [lint-dockerfile]
+    when:
+      - branch: master
+    commands:
+      - |
+        version=$(grep -oE "dnscrypt-proxy=[0-9]+\.[0-9]+\.[0-9]+" Dockerfile | cut -d= -f2)
+        [ -n "$version" ] || { echo "Could not extract dnscrypt-proxy version from Dockerfile" >&2; exit 1; }
+        printf 'latest\n%s\n' "$version" > .tags
+        cat .tags
+
   # Only runs on master (push or manual) - this is the one step with real
   # secrets (Docker Hub credentials), so it must not run for a manual
   # trigger against an arbitrary branch. See build-only below for that case.
   - name: build-and-push
     image: woodpeckerci/plugin-docker-buildx
     privileged: true
-    depends_on: [lint-dockerfile]
+    depends_on: [lint-dockerfile, compute-tags]
     when:
       - branch: master
     settings:
@@ -49,7 +66,9 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      tags: latest
+      # Read from the .tags file compute-tags wrote (latest + the pinned
+      # dnscrypt-proxy version, e.g. 2.1.16) rather than a static tags: value.
+      tags_file: .tags
 
   # Runs for manual triggers on anything other than master - validates the
   # Dockerfile actually builds and the tag is well-formed (exactly the class
