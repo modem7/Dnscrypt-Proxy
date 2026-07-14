@@ -23,10 +23,15 @@ steps:
       - hadolint --version
       - hadolint Dockerfile
 
+  # Only runs on master (push or manual) - this is the one step with real
+  # secrets (Docker Hub credentials), so it must not run for a manual
+  # trigger against an arbitrary branch. See build-only below for that case.
   - name: build-and-push
     image: woodpeckerci/plugin-docker-buildx
     privileged: true
     depends_on: [lint-dockerfile]
+    when:
+      - branch: master
     settings:
       # Not ${CI_REPO}: it mirrors the GitHub repo's exact casing
       # (modem7/Dnscrypt-Proxy), but Docker Hub repository names must be
@@ -44,6 +49,24 @@ steps:
         from_secret: docker_username
       password:
         from_secret: docker_password
+      tags: latest
+
+  # Runs for manual triggers on anything other than master - validates the
+  # Dockerfile actually builds and the tag is well-formed (exactly the class
+  # of bug PR #33 fixed) without ever touching Docker Hub credentials. No
+  # username/password/platforms settings here on purpose: this step must
+  # stay usable for a manual run against an untrusted or unreviewed branch.
+  - name: build-only
+    image: woodpeckerci/plugin-docker-buildx
+    privileged: true
+    depends_on: [lint-dockerfile]
+    when:
+      - branch:
+          exclude: [master]
+    settings:
+      dry-run: true
+      repo: modem7/dnscrypt-proxy
+      dockerfile: Dockerfile
       tags: latest
 
   - name: pushrm-dockerhub
