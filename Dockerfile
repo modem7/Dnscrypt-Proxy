@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:latest
 
-FROM alpine:edge as base
+FROM alpine:edge AS base
 ARG TARGETARCH
 
 LABEL maintainer="modem7"
