@@ -74,7 +74,7 @@ docker run -d \
 | `MONITORING_UI_ENABLED` | Enable the built-in monitoring web UI (`true`/`false`) - see below | `false` |
 | `MONITORING_UI_LISTEN_ADDRESS` | Listen address for the monitoring UI | `127.0.0.1:8080` |
 | `MONITORING_UI_USERNAME` | Monitoring UI basic auth username | `admin` |
-| `MONITORING_UI_PASSWORD` | Monitoring UI basic auth password - **change this if you enable the UI** | `changeme` |
+| `MONITORING_UI_PASSWORD` | Monitoring UI basic auth password | random, generated at startup if `MONITORING_UI_ENABLED=true` and left unset |
 | `MONITORING_UI_PROMETHEUS_ENABLED` | Expose a `/metrics` endpoint on the monitoring UI (`true`/`false`) | `false` |
 | `IP_ENCRYPTION_ALGORITHM` | Encrypt client IPs in plugin logs - `none`, `ipcrypt-deterministic`, `ipcrypt-nd`, `ipcrypt-ndx` or `ipcrypt-pfx` | `none` |
 | `IP_ENCRYPTION_KEY` | Hex-encoded key for `IP_ENCRYPTION_ALGORITHM` (required if not `none`) | — |
@@ -94,12 +94,13 @@ services:
   dnscrypt-proxy:
     environment:
       - MONITORING_UI_ENABLED=true
-      - MONITORING_UI_PASSWORD=something-not-changeme
     ports:
       - "127.0.0.1:8080:8080"  # only if you need to reach it from outside the container
 ```
 
-The UI binds to loopback by default, so it isn't reachable unless you also publish its port. If you do publish it, set `MONITORING_UI_PASSWORD` to something other than the default first.
+The UI binds to loopback by default, so it isn't reachable unless you also publish its port.
+
+If you enable it without setting `MONITORING_UI_PASSWORD`, a random password is generated for that container's lifetime and printed once to the logs (`docker logs dnscrypt-proxy`) - there's no shipped default credential to forget to change. Set `MONITORING_UI_PASSWORD` explicitly if you'd rather pin it to something stable across restarts.
 
 ---
 

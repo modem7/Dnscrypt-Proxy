@@ -1014,12 +1014,11 @@ enabled = %%MONITORING_UI_ENABLED%%
 listen_address = "%%MONITORING_UI_LISTEN_ADDRESS%%"
 
 ## Username and password for basic authentication.
-## Templated from MONITORING_UI_USERNAME / MONITORING_UI_PASSWORD.
+## Templated from MONITORING_UI_USERNAME / MONITORING_UI_PASSWORD. If the UI
+## is enabled without an explicit password, the init-dnscrypt-config oneshot
+## generates a random one at container start rather than shipping a fixed
+## default - see the README's Monitoring UI section.
 ## To disable authentication, set MONITORING_UI_USERNAME to an empty string.
-##
-## IMPORTANT: if you set MONITORING_UI_ENABLED=true, also set
-## MONITORING_UI_PASSWORD to something other than the default - see the
-## README's environment variable table.
 
 username = "%%MONITORING_UI_USERNAME%%"
 password = "%%MONITORING_UI_PASSWORD%%"
