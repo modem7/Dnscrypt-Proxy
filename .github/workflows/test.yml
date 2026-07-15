@@ -123,6 +123,15 @@ jobs:
         run: docker save -o /tmp/image.tar dnscrypt-proxy:test
       - name: Scan image for known vulnerabilities (Trivy)
         uses: aquasecurity/trivy-action@v0.36.0
+        env:
+          # Trivy's own update-check network call was failing on GitHub's
+          # runners and taking the whole scan down with exit code 1 before
+          # any vulnerability output was ever printed - reproduced twice in
+          # CI, but never locally with the identical pinned binary/image
+          # (confirmed clean, 0 findings, both times). Skipping the check
+          # removes the failing call entirely; it has no effect on the
+          # actual vulnerability scan or its results.
+          TRIVY_SKIP_VERSION_CHECK: "true"
         with:
           input: /tmp/image.tar
           format: sarif
