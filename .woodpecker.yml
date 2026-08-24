@@ -16,13 +16,10 @@ when:
   # branch before merging, not just against master.
   - event: manual
 
+# Dockerfile lint and functional testing happen in
+# .github/workflows/test.yml, not here - this pipeline only builds and
+# pushes images.
 steps:
-  - name: lint-dockerfile
-    image: hadolint/hadolint:latest-alpine
-    commands:
-      - hadolint --version
-      - hadolint Dockerfile
-
   # Writes a .tags file (one tag per line) for build-and-push to pick up via
   # tags_file below - the plugin has no "release on latest + parsed version"
   # feature of its own, but does read an arbitrary file of newline-separated
@@ -30,7 +27,6 @@ steps:
   # it exists solely to feed that step.
   - name: compute-tags
     image: alpine:edge
-    depends_on: [lint-dockerfile]
     when:
       - branch: master
     commands:
@@ -46,7 +42,7 @@ steps:
   - name: build-and-push
     image: woodpeckerci/plugin-docker-buildx
     privileged: true
-    depends_on: [lint-dockerfile, compute-tags]
+    depends_on: [compute-tags]
     when:
       - branch: master
     settings:
@@ -78,7 +74,6 @@ steps:
   - name: build-only
     image: woodpeckerci/plugin-docker-buildx
     privileged: true
-    depends_on: [lint-dockerfile]
     when:
       - branch:
           exclude: [master]
