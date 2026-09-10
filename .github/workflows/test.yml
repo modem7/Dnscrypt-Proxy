@@ -207,7 +207,9 @@ jobs:
             -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml -check
 
       - name: Set up dig
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq dnsutils
+        run: |
+          sudo rm -f /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update -qq && sudo apt-get install -y -qq dnsutils
 
       - name: Resolve a domain over UDP through the proxy
         run: dig @127.0.0.1 -p 5353 one.one.one.one +short +time=5 +tries=2 | grep -qE '^[0-9]+\.'
