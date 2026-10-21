@@ -57,6 +57,12 @@ steps:
         BUILDKIT_INLINE_CACHE: "1"
       cache_from:
         - type=registry\,ref=modem7/dnscrypt-proxy:latest
+      # Off by default so routine builds reuse the registry cache. When the
+      # base image digest hasn't moved, every layer (apk upgrade included)
+      # comes from cache, so a rebuild alone can't pick up Alpine package
+      # fixes such as a ca-certificates update. Force a clean build with:
+      #   woodpecker-cli pipeline create modem7/Dnscrypt-Proxy --branch master --var NO_CACHE=true
+      no_cache: ${NO_CACHE:-false}
       platforms: linux/amd64,linux/arm64/v8
       username:
         from_secret: docker_username
